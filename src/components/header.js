@@ -17,16 +17,16 @@ export default function Header({ activeTab, setActiveTab }) {
       <div className="flex flex-row justify-between items-center w-full px-8 py-4 bg-transparent backdrop-blur-md rounded-b-3xl shadow-lg">
         {/* SOL TARAFA (LOGO) */}
         <Link href="/" onClick={() => setActiveTab("home")}>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-6">
             <Image
               src="/sui.svg" // Logo dosyanızın adı neyse
-              alt="SuiPATH Logo"
+              alt="Trace Logo"
               width={40}
               height={40}
               priority
             />
             <h1 className="text-2xl font-bold text-white hidden sm:block">
-              SuiPATH
+              Trace
             </h1>
           </div>
         </Link>

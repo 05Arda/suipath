@@ -21,7 +21,7 @@ export default function HomePage({ activeTab, setActiveTab, events = [] }) {
   }, [events, searchQuery]);
 
   return (
-    <div className="flex flex-col w-full min-h-full px-4 py-4">
+    <div className="flex flex-col w-full min-h-full bg-deep-bg px-4 py-4">
       {/* --- ARAMA ÇUBUĞU --- */}
       <div className="self-end w-full max-w-md m-3 px-2">
         <div className="relative group">

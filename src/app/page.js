@@ -215,10 +215,8 @@ function MainContent() {
         </button>
       </div>*/}
 
-      <main className="flex-1 w-full h-full flex flex-col items-center sm:items-start bg-transparent relative z-0">
-        <div className="fixed top-0 left-0 w-full h-full bg-deep-bg/60 backdrop-blur-xs" />
+      <main className="flex-1 w-full h-full flex flex-col bg-deep-bg items-center sm:items-start bg-transparent relative z-0">
         {renderContent()}
-        <GloomyBackground />
       </main>
 
       <Footer activeTab={activeTab} onTabChange={setActiveTab} />

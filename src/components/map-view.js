@@ -15,9 +15,6 @@ import L from "leaflet";
 import Link from "next/link";
 import { ChevronRight, Calendar, MapPin, Filter } from "lucide-react";
 
-// DÜZELTME: EVENTS importunu kaldırdık, prop olarak alacağız
-// import { EVENTS } from "@/utils/data";
-
 // İkon Ayarları (Değişmedi)
 const iconUrl = "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png";
 const iconRetinaUrl =
@@ -48,18 +45,14 @@ function MapController({ selectedFeature }) {
   return null;
 }
 
-// DÜZELTME: events prop'u eklendi
 export default function MapView({ events = [] }) {
   const defaultCenter = [41.0082, 28.9784];
-  const zoomLevel = 6;
+  const zoomLevel = 8;
 
   const [geoData, setGeoData] = useState(null);
   const [selectedCountryCode, setSelectedCountryCode] = useState("");
-
-  // DÜZELTME: events prop'una bağlı state
   const [filteredEvents, setFilteredEvents] = useState(events);
 
-  // events prop'u değişince listeyi güncelle
   useEffect(() => {
     setFilteredEvents(events);
   }, [events]);
@@ -79,14 +72,12 @@ export default function MapView({ events = [] }) {
   }, [geoData, selectedCountryCode]);
 
   const handleCountryChange = (e) => {
-    const countryCode = e.target.value; // Örn: TUR, USA
+    const countryCode = e.target.value;
     setSelectedCountryCode(countryCode);
 
     if (countryCode === "") {
       setFilteredEvents(events);
     } else {
-      // DÜZELTME: Veritabanındaki gerçek 'country_code' ile filtrele
-      // (Veritabanındaki kodlar genelde 3 harfli ISO kodudur: TUR, USA)
       const filtered = events.filter((ev) => ev.country_code === countryCode);
       setFilteredEvents(filtered);
     }
@@ -98,8 +89,10 @@ export default function MapView({ events = [] }) {
         center={defaultCenter}
         zoom={zoomLevel}
         scrollWheelZoom={true}
+        selectedFeature={selectedFeature}
+        style={{ background: "#023338" }}
         className="w-full h-full z-0"
-        style={{ background: "#011820" }}
+        // DÜZELTME BURADA: Arka plan rengi güncellendi
         zoomControl={false}
       >
         <ZoomControl position="bottomright" />
@@ -107,7 +100,7 @@ export default function MapView({ events = [] }) {
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
-        <MapController selectedFeature={selectedFeature} />
+        <MapController />
 
         {selectedFeature && (
           <GeoJSON
@@ -123,7 +116,6 @@ export default function MapView({ events = [] }) {
         )}
 
         {filteredEvents.map((event) => {
-          // DÜZELTME: Gerçek koordinatları kullan, yoksa haritada gösterme
           if (!event.latitude || !event.longitude) return null;
 
           return (
@@ -164,9 +156,8 @@ export default function MapView({ events = [] }) {
         })}
       </MapContainer>
 
-      {/* FİLTRE ARAYÜZÜ (Değişmedi, aynı kalabilir) */}
+      {/* FİLTRE ARAYÜZÜ */}
       <div className="absolute bottom-8 left-8 z-[1000] bg-card-bg/90 backdrop-blur-md border border-white/10 p-3 rounded-xl shadow-2xl w-64 animate-in fade-in slide-in-from-bottom-4">
-        {/* ... (Filtre UI kodları aynı) ... */}
         <div className="flex items-center gap-2 mb-2 text-white/80">
           <Filter size={16} className="text-primary-cyan" />
           <span className="text-xs font-bold uppercase tracking-wider">
