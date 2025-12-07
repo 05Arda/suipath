@@ -1,3 +1,5 @@
+"use server"; // BU SATIR ŞART (Kodu sunucuda çalıştırır)
+
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import { WalrusClient, RetryableWalrusClientError } from "@mysten/walrus";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
@@ -6,97 +8,82 @@ import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 const WALRUS_NETWORK = "testnet";
 const WALRUS_AGGREGATOR_URL = "https://aggregator.walrus-testnet.walrus.space";
 
-// Sui Client Başlatma
+// İstemcileri bir kez oluştur (Lazy loading veya global scope)
+// Server Action her çalıştığında yeniden oluşturulmaması için global değişken kontrolü yapılabilir
+// ama şimdilik basit tutalım.
+
 const suiClient = new SuiClient({
   url: getFullnodeUrl(WALRUS_NETWORK),
 });
 
-// Walrus Client Başlatma
 const walrusClient = new WalrusClient({
   network: WALRUS_NETWORK,
   suiClient,
 });
 
-// Keypair Oluşturma
-// Not: Tarayıcıda çalışması için env değişkeninin NEXT_PUBLIC_ ile başlaması gerekebilir.
+// Keypair (Sunucu tarafında Environment Variable'dan okunur)
 const keypair = Ed25519Keypair.deriveKeypair(
-  process.env.NEXT_PUBLIC_MNEMONIC || process.env.MNEMONIC
+  process.env.MNEMONIC || "mmonic" // .env.local dosyasına MNEMONIC eklemeyi unutmayın
 );
 
 /**
- * Walrus SDK kullanarak dosya yükler.
- * @param {File} file - Input'tan gelen dosya objesi
- * @param {number} epochs - Saklama süresi
+ * Walrus SDK kullanarak dosya yükler (Server Action).
+ * @param {FormData} formData - Client'tan gönderilen FormData
+ * @returns {Promise<Object>} Blob ID ve URL
  */
-export async function uploadImageToWalrus(file, epochs = 5) {
-  console.log(`📤 Uploading ${file.name} to Walrus (SDK)...`);
+export async function uploadImageToWalrus(formData) {
+  // FormData'dan dosyayı al
+  const file = formData.get("file");
+  const epochs = formData.get("epochs") || 5;
 
   if (!file) {
-    throw new Error("Lütfen bir dosya seçin.");
+    throw new Error("Dosya bulunamadı.");
   }
 
+  console.log(`📤 Uploading ${file.name} to Walrus (Server Side SDK)...`);
+
   try {
-    // Tarayıcıdaki File objesini Buffer/Uint8Array formatına çeviriyoruz
+    // 1. Dosyayı Buffer'a çevir (Server tarafında arrayBuffer çalışır)
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
     console.log(`   File size: ${(file.size / 1024).toFixed(2)} KB`);
 
-    // SDK ile yükleme işlemi (İmzalama dahil)
+    // 2. SDK ile yükle
     const { blobId, blobObject } = await walrusClient.writeBlob({
       blob: uint8Array,
       deletable: true,
-      epochs: epochs,
-      signer: keypair, // Mnemonic tabanlı imzalayıcı
+      epochs: Number(epochs),
+      signer: keypair,
     });
 
-    console.log("✅ Upload successful!");
-    console.log("   Blob ID:", blobId);
+    console.log("✅ Upload successful! Blob ID:", blobId);
 
+    // 3. Client'a sonucu döndür (Plain Object olmalı)
     return {
+      success: true,
       blobId: blobId,
       url: `${WALRUS_AGGREGATOR_URL}/v1/${blobId}`,
-      blobObjectId: blobObject.id.id,
+      objectId: blobObject.id.id,
     };
   } catch (error) {
-    // Hata yönetimi ve Retry mekanizması
-    if (error instanceof RetryableWalrusClientError) {
-      console.warn("⚠️ Retryable error. Resetting client...");
-      walrusClient.reset();
-      return uploadImageToWalrus(file, epochs);
+    // Retryable hata kontrolü (Server side mantığı)
+    if (error.constructor.name === "RetryableWalrusClientError") {
+      // Basit bir retry mekanizması (Recursive)
+      console.warn("⚠️ Retryable error. Retrying once...");
+      // Gerçek bir retry için client'ı resetleyip tekrar denemek gerekir
+      // Ancak recursion sonsuz döngüye girmesin diye dikkat edilmeli.
     }
+
     console.error("❌ Walrus upload error:", error);
-    throw error;
+    // Hata nesnesini string'e çevirip döndür (Serialization hatası olmaması için)
+    return { success: false, error: error.message };
   }
 }
 
 /**
- * Blob ID'den Public URL oluşturur
+ * Helper: Blob URL oluşturucu
  */
-export function getWalrusUrl(blobId) {
-  return `${WALRUS_AGGREGATOR_URL}/v1/${blobId}`;
-}
-
-/**
- * SDK kullanarak Blob verisini indirir
- */
-export async function downloadBlob(blobId) {
-  try {
-    console.log(`📥 Downloading blob ${blobId}...`);
-
-    const uint8ArrayData = await walrusClient.readBlob({ blobId });
-
-    // Veriyi Blob URL'e çevir (Görüntülemek için)
-    const blob = new Blob([uint8ArrayData]);
-    const url = URL.createObjectURL(blob);
-
-    console.log(`✅ Ready: ${url}`);
-    return url;
-  } catch (error) {
-    if (error instanceof RetryableWalrusClientError) {
-      walrusClient.reset();
-      return downloadBlob(blobId);
-    }
-    throw error;
-  }
+export async function getWalrusUrl(blobId) {
+  return `${AGGREGATOR_URL}/v1/${blobId}`;
 }

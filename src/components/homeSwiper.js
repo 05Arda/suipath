@@ -94,7 +94,7 @@ export default function HomeSwiper({
                 className="group block h-full bg-card-bg border border-border-color rounded-2xl overflow-hidden hover:border-primary-cyan transition-all duration-300 relative"
               >
                 {/* Resim Alanı */}
-                <div className="relative h-32 w-full">
+                <div className="relative h-64 w-full">
                   <Image
                     src={
                       event.image ||

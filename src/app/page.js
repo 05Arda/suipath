@@ -191,7 +191,7 @@ function MainContent() {
   return (
     <div className="min-h-screen flex w-full flex-col to-primary-blue font-sans">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-
+      {/*
       <div className="absolute transform -translate-x-1/2 left-1/2 top-20 z-40 flex flex-row justify-center gap-4 mt-2 bg-white/10 p-2 backdrop-blur-sm">
         <button
           onClick={() => setActiveTab("walrus")}
@@ -213,7 +213,7 @@ function MainContent() {
         >
           Admin Panel
         </button>
-      </div>
+      </div>*/}
 
       <main className="flex-1 w-full h-full flex flex-col items-center sm:items-start bg-transparent relative z-0">
         <div className="fixed top-0 left-0 w-full h-full bg-deep-bg/60 backdrop-blur-xs" />
