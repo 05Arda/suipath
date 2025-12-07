@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 // --- Sui & Walrus Importları ---
 import {
@@ -17,19 +17,17 @@ import "@mysten/dapp-kit/dist/index.css";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import GloomyBackground from "@/components/background";
-
 import HomePage from "@/components/main";
 import MapPage from "@/components/map";
 import ProfilePage from "@/app/profile/[id]/page";
 import CalendarPage from "@/components/calendar";
-
 import Events from "@/components/events";
 import NFTGallery from "@/components/nftGallery";
-
-import WalrusPage from "@/components/walrus";
 import AdminPanel from "@/components/adminPanel";
 
-import { EVENTS, NFTS, MOCK_USER } from "@/utils/data";
+// --- SERVER ACTIONS ---
+// DÜZELTME: createUser fonksiyonunu import ettik
+import { getEvents, getNFTs, getUserProfile, createUser } from "@/app/actions";
 
 // --- SUI CONFIG ---
 const { networkConfig } = createNetworkConfig({
@@ -38,79 +36,157 @@ const { networkConfig } = createNetworkConfig({
 });
 const queryClient = new QueryClient();
 
-// 1. İÇ BİLEŞEN (Mantık ve Hook'lar burada çalışır)
 function MainContent() {
   const [activeTab, setActiveTab] = useState("home");
-  // Provider bu bileşeni sarmaladığı için artık hook çalışır
   const account = useCurrentAccount();
 
+  // --- STATE ---
+  const [eventsData, setEventsData] = useState([]);
+  const [nftsData, setNftsData] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // --- 1. KULLANICI VERİSİNİ ÇEKME & OLUŞTURMA ---
+  const fetchUserData = useCallback(async () => {
+    if (account?.address) {
+      try {
+        // 1. Kullanıcıyı veritabanında ara
+        let profile = await getUserProfile(account.address);
+
+        // 2. Eğer kullanıcı YOKSA -> Oluştur (Otomatik Kayıt)
+        if (!profile) {
+          console.log("Yeni kullanıcı tespit edildi, oluşturuluyor...");
+          const result = await createUser(account.address);
+
+          if (result.success) {
+            // Oluşturulduktan sonra tekrar çek
+            profile = await getUserProfile(account.address);
+          }
+        }
+
+        // 3. Profili state'e at
+        setUserProfile(profile);
+      } catch (error) {
+        console.error("Profil işlemi hatası:", error);
+      }
+    } else {
+      setUserProfile(null);
+    }
+  }, [account]); // account değişince (login olunca) çalışır
+
+  // --- 2. GENEL VERİLERİ ÇEK ---
+  const fetchGeneralData = async () => {
+    try {
+      const events = await getEvents();
+      const nfts = await getNFTs();
+      setEventsData(events);
+      setNftsData(nfts);
+    } catch (error) {
+      console.error("Genel veri hatası:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- USE EFFECTS ---
+  useEffect(() => {
+    fetchGeneralData();
+  }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData, activeTab]);
+
+  // --- RENDER MANTIĞI ---
   const renderContent = () => {
-    // --- BURASI İSTEDİĞİNİZ DÜZELTME ---
+    if (loading)
+      return <div className="text-white text-center mt-20">Yükleniyor...</div>;
+
     const userComponent = account ? (
       <div className="relative w-full h-full">
         <ProfilePage
-          // ÖNEMLİ: key prop'u değiştiğinde React bu bileşeni tamamen yok edip yeniden oluşturur.
-          // Cüzdan adresi değiştiğinde veya bağlandığında ProfilePage sıfırdan render olur.
           key={account.address}
           userId={account.address}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          userProfile={userProfile}
+          events={eventsData}
+          nfts={nftsData}
         />
       </div>
     ) : (
       <div className="flex flex-col items-center justify-center w-screen h-[80vh] text-white space-y-4">
         <p className="text-lg font-medium text-center">
-          Please connect your wallet to view your profile.
+          Profilinizi görmek için lütfen cüzdanınızı bağlayın.
         </p>
         <ConnectButton
           className="!bg-primary-cyan !text-white !rounded-full !font-bold hover:!bg-white hover:!text-primary-cyan transition-all"
-          connectText="Connect Wallet"
+          connectText="Cüzdan Bağla"
         />
       </div>
     );
 
     const pages = {
-      home: <HomePage activeTab={activeTab} setActiveTab={setActiveTab} />,
-      calendar: <CalendarPage />,
+      home: (
+        <HomePage
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          events={eventsData}
+        />
+      ),
+      calendar: <CalendarPage events={eventsData} />,
       user: userComponent,
-      map: <MapPage />,
+      map: <MapPage events={eventsData} />,
       admin: <AdminPanel />,
 
-      recommendedEvents: <Events events={EVENTS} filterTag={"recommended"} />,
-      allEvents: <Events events={EVENTS} />,
+      recommendedEvents: (
+        <Events events={eventsData} filterTag={"recommended"} />
+      ),
+      allEvents: <Events events={eventsData} />,
 
       joinedEvents: (
         <Events
-          events={EVENTS.filter((event) => {
-            if (!account?.address) return false;
-            const userRecord = MOCK_USER[account.address];
-            return userRecord?.joinedEventIds?.includes(event.id);
+          events={eventsData.filter((event) => {
+            if (!userProfile?.joinedEventIds) return false;
+            return userProfile.joinedEventIds.some(
+              (id) => String(id) === String(event.id)
+            );
           })}
         />
       ),
 
       favoriteEvents: (
         <Events
-          events={EVENTS.filter((event) => {
-            if (!account?.address) return false;
-            const userRecord = MOCK_USER[account.address];
-            return userRecord?.favoriteEventIds?.includes(event.id);
+          events={eventsData.filter((event) => {
+            if (!userProfile?.favoriteEventIds) return false;
+            return userProfile.favoriteEventIds.some(
+              (id) => String(id) === String(event.id)
+            );
           })}
         />
       ),
 
       nftGallery: (
         <NFTGallery
-          nfts={NFTS.filter((nft) => {
-            if (!account?.address) return false;
-            const userRecord = MOCK_USER[account.address];
-            return userRecord?.earnedNftIds?.includes(nft.id);
+          nfts={nftsData.filter((nft) => {
+            if (!userProfile?.earnedNftIds) return false;
+            return userProfile.earnedNftIds.some(
+              (id) => String(id) === String(nft.id)
+            );
           })}
         />
       ),
     };
 
-    return pages[activeTab] || <HomePage />;
+    return (
+      pages[activeTab] || (
+        <HomePage
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          events={eventsData}
+        />
+      )
+    );
   };
 
   return (
@@ -129,7 +205,6 @@ function MainContent() {
         >
           Test: Walrus DB
         </button>
-
         <button
           onClick={() => setActiveTab("admin")}
           className={`px-4 py-1 rounded-full text-sm font-medium transition-colors ${
@@ -144,7 +219,6 @@ function MainContent() {
 
       <main className="flex-1 w-full h-full flex flex-col items-center sm:items-start bg-transparent relative z-0">
         <div className="fixed top-0 left-0 w-full h-full bg-deep-bg/60 backdrop-blur-xs" />
-
         {renderContent()}
         <GloomyBackground />
       </main>
@@ -154,13 +228,11 @@ function MainContent() {
   );
 }
 
-// 2. ANA SAYFA (Sadece Provider'ları tutar)
 export default function Page() {
   return (
     <QueryClientProvider client={queryClient}>
       <SuiClientProvider networks={networkConfig} defaultNetwork="testnet">
         <WalletProvider autoConnect>
-          {/* İçeriği ayrı bileşene aldık */}
           <MainContent />
         </WalletProvider>
       </SuiClientProvider>

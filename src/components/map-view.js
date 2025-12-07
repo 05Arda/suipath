@@ -1,4 +1,3 @@
-// components/map-view.js
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -8,23 +7,24 @@ import {
   Marker,
   Popup,
   ZoomControl,
-  GeoJSON, // Sınırları çizmek için
-  useMap, // Haritayı kontrol etmek için
+  GeoJSON,
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Link from "next/link";
 import { ChevronRight, Calendar, MapPin, Filter } from "lucide-react";
-import { EVENTS } from "@/utils/data";
 
-// --- İKON AYARLARI ---
+// DÜZELTME: EVENTS importunu kaldırdık, prop olarak alacağız
+// import { EVENTS } from "@/utils/data";
+
+// İkon Ayarları (Değişmedi)
 const iconUrl = "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png";
 const iconRetinaUrl =
   "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png";
 const shadowUrl =
   "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png";
 
-// Server-side rendering hatasını önlemek için kontrol
 if (typeof window !== "undefined") {
   delete L.Icon.Default.prototype._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -34,38 +34,37 @@ if (typeof window !== "undefined") {
   });
 }
 
-// --- YARDIMCI BİLEŞEN: Haritayı Seçilen Ülkeye Odaklar ---
 function MapController({ selectedFeature }) {
   const map = useMap();
-
   useEffect(() => {
     if (selectedFeature) {
-      // GeoJSON verisinden sınırları (bounds) al
       const layer = L.geoJSON(selectedFeature);
       const bounds = layer.getBounds();
-
-      // Haritayı o sınırlara sığdır (biraz padding ile)
       if (bounds.isValid()) {
         map.fitBounds(bounds, { padding: [50, 50] });
       }
     }
   }, [selectedFeature, map]);
-
   return null;
 }
 
-export default function MapView() {
+// DÜZELTME: events prop'u eklendi
+export default function MapView({ events = [] }) {
   const defaultCenter = [41.0082, 28.9784];
   const zoomLevel = 6;
 
-  // --- STATES ---
-  const [geoData, setGeoData] = useState(null); // Tüm dünya verisi
-  const [selectedCountryCode, setSelectedCountryCode] = useState(""); // Seçilen ülke kodu
-  const [filteredEvents, setFilteredEvents] = useState(EVENTS); // Filtrelenmiş etkinlikler
+  const [geoData, setGeoData] = useState(null);
+  const [selectedCountryCode, setSelectedCountryCode] = useState("");
 
-  // --- DATA FETCHING (Dünya Haritası) ---
+  // DÜZELTME: events prop'una bağlı state
+  const [filteredEvents, setFilteredEvents] = useState(events);
+
+  // events prop'u değişince listeyi güncelle
   useEffect(() => {
-    // Düşük çözünürlüklü dünya haritası (performans için)
+    setFilteredEvents(events);
+  }, [events]);
+
+  useEffect(() => {
     fetch(
       "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
     )
@@ -74,28 +73,22 @@ export default function MapView() {
       .catch((err) => console.error("Harita verisi yüklenemedi:", err));
   }, []);
 
-  // --- SEÇİLEN ÜLKENİN GEOJSON VERİSİNİ BUL ---
   const selectedFeature = useMemo(() => {
     if (!geoData || !selectedCountryCode) return null;
     return geoData.features.find((f) => f.id === selectedCountryCode);
   }, [geoData, selectedCountryCode]);
 
-  // --- FİLTRELEME FONKSİYONU ---
   const handleCountryChange = (e) => {
-    const countryCode = e.target.value;
+    const countryCode = e.target.value; // Örn: TUR, USA
     setSelectedCountryCode(countryCode);
 
     if (countryCode === "") {
-      setFilteredEvents(EVENTS); // Hepsini göster
+      setFilteredEvents(events);
     } else {
-      // NOT: Gerçek projede 'event.countryCode' gibi bir alan olmalı.
-      // Burada simülasyon yapıyoruz: Eğer Türkiye (TUR) seçilirse hepsini göster,
-      // yoksa boş göster (çünkü mock datanız sadece İstanbul koordinatlarında).
-      if (countryCode === "TUR") {
-        setFilteredEvents(EVENTS);
-      } else {
-        setFilteredEvents([]); // Diğer ülkelerde etkinlik yok varsayıyoruz
-      }
+      // DÜZELTME: Veritabanındaki gerçek 'country_code' ile filtrele
+      // (Veritabanındaki kodlar genelde 3 harfli ISO kodudur: TUR, USA)
+      const filtered = events.filter((ev) => ev.country_code === countryCode);
+      setFilteredEvents(filtered);
     }
   };
 
@@ -110,22 +103,18 @@ export default function MapView() {
         zoomControl={false}
       >
         <ZoomControl position="bottomright" />
-
         <TileLayer
           attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
-
-        {/* --- 1. HARİTA KONTROLCÜSÜ (Zoom için) --- */}
         <MapController selectedFeature={selectedFeature} />
 
-        {/* --- 2. KIRMIZI SINIR ÇİZİMİ --- */}
         {selectedFeature && (
           <GeoJSON
-            key={selectedCountryCode} // Key değişince yeniden render eder
+            key={selectedCountryCode}
             data={selectedFeature}
             style={{
-              color: "#ef4444", // Tailwind red-500
+              color: "#ef4444",
               weight: 2,
               fillColor: "#ef4444",
               fillOpacity: 0.1,
@@ -133,14 +122,12 @@ export default function MapView() {
           />
         )}
 
-        {/* --- 3. MARKERLAR --- */}
         {filteredEvents.map((event) => {
-          // Mock koordinat (Sabit kalması için useMemo kullanılabilir ama şimdilik bırakıyoruz)
-          const mockLat = 41.0082 + (Math.random() - 0.5) * 5;
-          const mockLng = 28.9784 + (Math.random() - 0.5) * 5;
+          // DÜZELTME: Gerçek koordinatları kullan, yoksa haritada gösterme
+          if (!event.latitude || !event.longitude) return null;
 
           return (
-            <Marker key={event.id} position={[mockLat, mockLng]}>
+            <Marker key={event.id} position={[event.latitude, event.longitude]}>
               <Popup className="custom-popup">
                 <div className="min-w-[200px]">
                   <div className="relative h-24 w-full mb-2 rounded-lg overflow-hidden">
@@ -177,8 +164,9 @@ export default function MapView() {
         })}
       </MapContainer>
 
-      {/* --- 4. SOL ALT FİLTRE ARAYÜZÜ --- */}
+      {/* FİLTRE ARAYÜZÜ (Değişmedi, aynı kalabilir) */}
       <div className="absolute bottom-8 left-8 z-[1000] bg-card-bg/90 backdrop-blur-md border border-white/10 p-3 rounded-xl shadow-2xl w-64 animate-in fade-in slide-in-from-bottom-4">
+        {/* ... (Filtre UI kodları aynı) ... */}
         <div className="flex items-center gap-2 mb-2 text-white/80">
           <Filter size={16} className="text-primary-cyan" />
           <span className="text-xs font-bold uppercase tracking-wider">
@@ -194,7 +182,6 @@ export default function MapView() {
           <option value="" className="bg-slate-800">
             Tüm Dünya
           </option>
-          {/* GeoJSON yüklendiyse listeyi doldur */}
           {geoData &&
             geoData.features
               .sort((a, b) =>
@@ -210,8 +197,6 @@ export default function MapView() {
                 </option>
               ))}
         </select>
-
-        {/* Select ikonu için hack */}
         <div className="absolute right-6 bottom-6 pointer-events-none text-white/50">
           <ChevronRight className="rotate-90" size={16} />
         </div>

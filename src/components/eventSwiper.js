@@ -54,7 +54,7 @@ export default function EventSwiper({ events }) {
           return (
             <SwiperSlide key={event.id} className="h-auto">
               <Link
-                href={`/event/${event.id}`}
+                href={`/event/${event.id}?from=back`}
                 className="group block h-full bg-card-bg border border-border-color rounded-2xl overflow-hidden hover:border-primary-cyan transition-all duration-300 relative"
               >
                 {/* Resim Alanı */}

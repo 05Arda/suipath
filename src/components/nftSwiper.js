@@ -1,53 +1,69 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
-import Link from "next/link";
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/free-mode";
 import { FreeMode, Autoplay } from "swiper/modules";
 
-// Veri importu
-import { NFTS } from "@/utils/data";
+// DÜZELTME 1: Statik veri importunu kaldırdık
+// import { NFTS } from "@/utils/data";
 
-import NFTDetailPage from "@/app/nft/[id]/page";
+import NFTDetailPage from "@/app/nft/[id]/page"; // veya ilgili path
 
-// Varsayılan değer [] atandı (Hata önleyici)
-export default function NftSwiper({ filteredNftIds = [] }) {
-  // Eğer filtreleme yapılacak ID listesi boşsa veya undefined ise
-  // Tüm NFT'leri mi gösterelim yoksa hiç göstermeyelim mi?
-  // Aşağıdaki mantık: ID listesi varsa filtrele, yoksa hepsini göster.
-  const displayNfts =
-    filteredNftIds.length > 0
-      ? NFTS.filter((nft) => filteredNftIds.includes(nft.id))
-      : NFTS;
+export default function NftSwiper({
+  filteredNftIds = [], // Filtrelenecek ID listesi (Örn: User'ın sahip oldukları)
+  nfts = [], // DÜZELTME 2: Tüm NFT verisi prop olarak geliyor
+}) {
+  // DÜZELTME 3: Veriyi prop'tan gelen 'nfts' listesinden filtreliyoruz
+  const displayNfts = useMemo(() => {
+    // Eğer 'nfts' prop'u boşsa (veri gelmediyse) boş dizi dön
+    if (!nfts || nfts.length === 0) return [];
 
-  if (displayNfts.length === 0) return null; // Gösterilecek NFT yoksa bileşeni render etme
+    // Eğer ID listesi boşsa, tüm NFT'leri göster (veya boş dönebilirsiniz, tercihe bağlı)
+    // Önceki kodunuzda "yoksa hepsini göster" mantığı vardı, aynen koruyoruz:
+    if (!filteredNftIds || filteredNftIds.length === 0) return nfts;
+
+    // Filtreleme: ID'si listede olanları bul
+    return nfts.filter((nft) => filteredNftIds.includes(nft.id));
+  }, [filteredNftIds, nfts]);
+
+  // Gösterilecek NFT yoksa bileşeni render etme
+  if (displayNfts.length === 0) return null;
 
   const [showNftDetail, setShowNftDetail] = useState(false);
-  const [selectedNftId, setSelectedNftId] = useState(1);
+  const [selectedNftId, setSelectedNftId] = useState(null);
+
+  // Modal için seçili NFT verisini bul
+  // (Veritabanından tekrar çekmeye gerek yok, elimizdeki listeden buluyoruz)
+  const selectedNftData = useMemo(() => {
+    return displayNfts.find((n) => n.id === selectedNftId);
+  }, [selectedNftId, displayNfts]);
 
   return (
     <div className="w-full py-6">
       {showNftDetail && (
-        <div className="absolute inset-0 flex justify-center items-center bg-deep-bg/90 z-60">
-          {
-            <>
-              <NFTDetailPage
-                nftId={selectedNftId}
-                showNftDetail={showNftDetail}
-                setShowNftDetail={setShowNftDetail}
-              />
-              <div
-                className="absolute w-screen h-screen -z-1
-              "
-                onClick={() => setShowNftDetail(false)}
-              ></div>
-            </>
-          }
+        <div className="fixed inset-0 flex justify-center items-center bg-deep-bg/90 z-[60] backdrop-blur-sm">
+          {/* Modal İçeriği */}
+          <div className="relative z-10 w-full max-w-4xl max-h-screen overflow-y-auto">
+            <NFTDetailPage
+              nftId={selectedNftId}
+              // Veriyi prop olarak geçiyoruz ki modal tekrar fetch yapmasın (Hibrit Yapı)
+              initialData={selectedNftData}
+              showNftDetail={showNftDetail}
+              setShowNftDetail={setShowNftDetail}
+            />
+          </div>
+
+          {/* Arka plan tıklama alanı (Kapatmak için) */}
+          <div
+            className="absolute inset-0 z-0"
+            onClick={() => setShowNftDetail(false)}
+          />
         </div>
       )}
+
       <Swiper
         modules={[FreeMode, Autoplay]}
         spaceBetween={15}
@@ -75,16 +91,22 @@ export default function NftSwiper({ filteredNftIds = [] }) {
               setShowNftDetail(true);
             }}
           >
-            <div className="group relative block w-full aspect-[4/5] rounded-2xl overflow-hidden border border-white/5 hover:border-primary-cyan transition-all duration-300 shadow-lg">
+            <div className="group relative block w-full aspect-[4/5] rounded-2xl overflow-hidden border border-white/5 hover:border-primary-cyan transition-all duration-300 shadow-lg cursor-pointer">
               {/* --- RESİM --- */}
-              <Image
-                src={nft.image}
-                alt={nft.title}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-              />
+              <div className="relative w-full h-full">
+                <Image
+                  src={
+                    nft.image || "https://via.placeholder.com/400x500?text=NFT"
+                  } // Fallback image
+                  alt={nft.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+              </div>
+
               {/* --- OVERLAY --- */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+
               {/* --- İÇERİK --- */}
               <div className="absolute bottom-0 left-0 w-full p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                 {/* Sanatçı ve Başlık */}
@@ -113,7 +135,9 @@ export default function NftSwiper({ filteredNftIds = [] }) {
                   </div>
                 </div>
               </div>
-              {/* Üstteki "Hot" Rozeti */}
+
+              {/* Üstteki "Hot" Rozeti (Opsiyonel) */}
+              {/* Eğer NFT verisinde 'is_hot' gibi bir alan varsa kullanılabilir */}
               <div className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-red-400/30">
                 HOT
               </div>

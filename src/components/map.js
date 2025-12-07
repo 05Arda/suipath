@@ -15,14 +15,14 @@ const MapView = dynamic(() => import("@/components/map-view"), {
   ssr: false,
 });
 
-export default function MapPage() {
+export default function MapPage({ events }) {
   return (
     // DEĞİŞİKLİK BURADA:
     // 1. h-full: Yüksekliği kapsayıcıya (main) göre doldurur.
     // 2. overflow-hidden: Kaydırma çubuğunu kesin olarak engeller.
     // 3. relative: İçindeki absolute elemanlar buna göre konumlanır.
     <div className="w-full h-screen max-h-screen relative bg-white overflow-hidden">
-      <MapView />
+      <MapView events={events} />
     </div>
   );
 }

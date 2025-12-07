@@ -1,14 +1,13 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { X, Gem, Award, Wallet, Clock, Shield, Zap } from "lucide-react";
+import { X, Award, Wallet, Clock, Shield, Loader2 } from "lucide-react";
 
-// Veri importu
-import { NFTS } from "@/utils/data";
+// Server Action Import
+import { getNFTById } from "@/app/actions";
 
-// Tier Renkleri (Move kontratı ile uyumlu olmalı)
+// Tier Renkleri
 const TIER_COLORS = {
   PLATINUM: "bg-indigo-600 text-white border-indigo-400",
   GOLD: "bg-yellow-500 text-black border-yellow-300",
@@ -16,126 +15,202 @@ const TIER_COLORS = {
   BRONZE: "bg-orange-600 text-white border-orange-400",
 };
 
-// Düzeltildi: Prop ismini 'propNftId' olarak değiştirdik.
 export default function NFTDetailPage({
   nftId: propNftId = null,
   showNftDetail = null,
   setShowNftDetail = null,
+  initialData = null, // Eğer parent bileşen veriyi zaten elinde tutuyorsa buraya atabilir
 }) {
   const params = useParams();
   const router = useRouter();
 
-  // Düzeltildi: ID'yi tek bir yerden alıyoruz. Props (modal) önceliklidir.
-  const targetNftId = Number(propNftId || params.id);
+  // Hedef ID'yi belirle
+  const targetNftId = Number(propNftId || params?.id);
 
-  // NFT'yi veriden bul
-  const nft = NFTS.find((n) => n.id === targetNftId);
+  // State Yönetimi
+  const [nft, setNft] = useState(initialData || null);
+  const [loading, setLoading] = useState(!initialData);
+  const [error, setError] = useState(false);
 
-  // Eğer NFT bulunamazsa veya ID geçersizse (NaN, 0 vb.)
-  if (!nft) {
+  // Veri Çekme (useEffect)
+  useEffect(() => {
+    // Eğer veri prop olarak geldiyse (initialData) tekrar çekme
+    if (initialData) {
+      setNft(initialData);
+      setLoading(false);
+      return;
+    }
+
+    // ID yoksa veya geçersizse hata
+    if (!targetNftId) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
+
+    const fetchNFT = async () => {
+      try {
+        setLoading(true);
+        // Server Action'ı çağır
+        const data = await getNFTById(targetNftId);
+
+        if (data) {
+          setNft(data);
+        } else {
+          setError(true);
+        }
+      } catch (err) {
+        console.error("NFT yüklenemedi:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNFT();
+  }, [targetNftId, initialData]);
+
+  // --- LOADING DURUMU ---
+  if (loading) {
     return (
-      <div className="min-h-screen bg-deep-bg py-24 px-10 flex flex-col items-center justify-center text-center ">
+      <div className="min-h-screen bg-deep-bg/90 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 size={48} className="text-primary-cyan animate-spin" />
+          <p className="text-white text-sm font-medium">
+            NFT Verisi Çekiliyor...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // --- HATA DURUMU ---
+  if (error || !nft) {
+    return (
+      <div className="min-h-screen bg-deep-bg py-24 px-10 flex flex-col items-center justify-center text-center fixed inset-0 z-50">
         <h1 className="text-3xl font-bold text-white mb-4">NFT Bulunamadı</h1>
         <p className="text-text-muted">
-          Geçersiz kimlik (ID) veya NFT mevcut değil.
+          Aradığınız NFT veritabanında mevcut değil veya ID hatalı.
         </p>
         <button
-          onClick={() => setShowNftDetail(false)}
+          onClick={() => {
+            if (setShowNftDetail) setShowNftDetail(false);
+            else router.back();
+          }}
           className="mt-6 px-6 py-3 bg-primary-cyan text-white rounded-xl font-bold hover:opacity-90 transition-opacity"
         >
-          <X size={16} className="inline mr-2" />
+          <X size={16} className="inline mr-2" /> Kapat
         </button>
       </div>
     );
   }
 
   // Yükseltme kontrolü
-  const currentTier = nft.tier_name.toUpperCase();
-  const isMaxTier = currentTier === "PLATINUM";
+  const currentTier = nft.tier_name ? nft.tier_name.toUpperCase() : "UNKNOWN";
+
+  // Modal kapatma fonksiyonu
+  const handleClose = () => {
+    if (setShowNftDetail) {
+      setShowNftDetail(false);
+    } else {
+      router.push("/"); // Veya router.back()
+    }
+  };
 
   return (
-    <div className="sticky top-0 max-h-screen bg-deep-bg py-24 px-10 rounded-4xl">
-      {/* --- HEADER / BACK BUTTON --- */}
-      <div className="max-w-4xl mx-auto mb-6 flex justify-between items-center">
-        <button
-          onClick={() => setShowNftDetail(false)}
-          className="p-2 bg-card-bg rounded-full text-white hover:bg-white/10 transition-colors border border-white/10"
-        >
-          <X size={24} />
-        </button>
-        <h1 className="text-xl font-bold text-white hidden sm:block">
-          {nft.title}
-        </h1>
-        <div className="w-10 h-10"></div> {/* Hizalama için boşluk */}
-      </div>
-
-      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* --- SOL KOLON: GÖRSEL VE AKSİYON --- */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* NFT GÖRSELİ */}
-          <div className="relative w-full aspect-square rounded-3xl overflow-hidden shadow-2xl border border-border-color">
-            <Image
-              src={nft.image}
-              alt={nft.title}
-              fill
-              className="object-cover"
-              priority
-            />
-            {/* Tier Badge Büyük Görünüm */}
-            <div
-              className={`absolute top-4 right-4 text-sm font-extrabold px-3 py-1 rounded-full border-2 ${TIER_COLORS[currentTier]}`}
+    // Z-Index ve Fixed ekleyerek Modal gibi davranmasını garantiliyoruz
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-deep-bg/95 backdrop-blur-xl">
+      <div className="min-h-screen py-12 px-4 sm:px-10 flex items-center justify-center">
+        <div className="w-full max-w-6xl relative">
+          {/* --- HEADER / CLOSE BUTTON --- */}
+          <div className="mb-6 flex justify-between items-center">
+            <button
+              onClick={handleClose}
+              className="p-3 bg-card-bg rounded-full text-white hover:bg-red-500 hover:text-white transition-all border border-white/10 group"
             >
-              <Award size={18} className="inline mr-1" /> {currentTier}
-            </div>
-          </div>
-        </div>
-
-        {/* --- SAĞ KOLON: METADATA --- */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* BAŞLIK VE FİYAT */}
-          <div className="bg-card-bg p-6 rounded-2xl border border-white/10 shadow-lg">
-            <h2 className="text-2xl font-extrabold text-white mb-2">
+              <X
+                size={24}
+                className="group-hover:rotate-90 transition-transform duration-300"
+              />
+            </button>
+            <h1 className="text-xl font-bold text-white hidden sm:block">
               {nft.title}
-            </h2>
-            <p className="text-primary-cyan text-sm mb-4">
-              Oluşturan: {nft.creator}
-            </p>
+            </h1>
+            <div className="w-10 h-10"></div>
+          </div>
 
-            <div className="flex justify-between items-center pt-4 border-t border-white/10">
-              <div className="flex flex-col">
-                <span className="text-xs text-text-muted uppercase">
-                  Güncel Fiyat
-                </span>
-                <span className="text-xl font-bold text-emerald-400 flex items-center gap-1">
-                  <Wallet size={20} /> {nft.price}
-                </span>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {/* --- SOL KOLON: GÖRSEL --- */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="relative w-full aspect-square lg:aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border border-border-color bg-black/40">
+                <Image
+                  src={nft.image}
+                  alt={nft.title}
+                  fill
+                  className="object-contain p-4 hover:scale-105 transition-transform duration-700"
+                  priority
+                />
+                <div
+                  className={`absolute top-4 right-4 text-sm font-extrabold px-3 py-1 rounded-full border-2 shadow-lg ${
+                    TIER_COLORS[currentTier] || "bg-gray-500"
+                  }`}
+                >
+                  <Award size={18} className="inline mr-1" /> {currentTier}
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-xs text-text-muted uppercase">
-                  Seri No
-                </span>
-                <p className="text-white font-mono font-bold">
-                  {nft.serial_number}
+            </div>
+
+            {/* --- SAĞ KOLON: METADATA --- */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* BAŞLIK VE FİYAT */}
+              <div className="bg-card-bg p-6 rounded-2xl border border-white/10 shadow-lg animate-in slide-in-from-right-8 duration-500">
+                <h2 className="text-2xl font-extrabold text-white mb-2">
+                  {nft.title}
+                </h2>
+                <p className="text-primary-cyan text-sm mb-4 font-mono">
+                  Creator: {nft.creator}
+                </p>
+
+                <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-text-muted uppercase mb-1">
+                      Price
+                    </span>
+                    <span className="text-xl font-bold text-emerald-400 flex items-center gap-1">
+                      <Wallet size={20} /> {nft.price}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-text-muted uppercase mb-1">
+                      ID
+                    </span>
+                    <p className="text-white font-mono font-bold bg-white/5 px-2 py-1 rounded">
+                      #{nft.id}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* AÇIKLAMA */}
+              <div className="bg-card-bg p-6 rounded-2xl border border-white/10 shadow-lg animate-in slide-in-from-right-8 duration-700 delay-100">
+                <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                  <Shield size={18} className="text-primary-cyan" /> Description
+                </h3>
+                <p className="text-text-muted text-sm leading-relaxed">
+                  {nft.description}
                 </p>
               </div>
-            </div>
-          </div>
 
-          {/* AÇIKLAMA */}
-          <div className="bg-card-bg p-6 rounded-2xl border border-white/10 shadow-lg">
-            <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <Shield size={18} className="text-primary-cyan" /> Açıklama
-            </h3>
-            <p className="text-text-muted text-sm">{nft.description}</p>
-          </div>
-
-          {/* ÖZELLİKLER (Attributes) */}
-          <div className="bg-card-bg p-6 rounded-2xl border border-white/10 shadow-lg">
-            <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <Clock size={18} className="text-primary-cyan" /> Özellikler
-            </h3>
-            <div className="text-xs font-mono text-text-light bg-black/20 p-3 rounded">
-              {nft.attributes || "{ type: 'Initial', power: 'Low' }"}
+              {/* ÖZELLİKLER */}
+              <div className="bg-card-bg p-6 rounded-2xl border border-white/10 shadow-lg animate-in slide-in-from-right-8 duration-700 delay-200">
+                <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                  <Clock size={18} className="text-primary-cyan" /> Properties
+                </h3>
+                <div className="text-xs font-mono text-emerald-300 bg-black/40 p-4 rounded-xl border border-emerald-500/20">
+                  {/* JSON verisi gelebilir veya düz text */}
+                  {nft.attributes}
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -8,17 +8,15 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Veri importu
-import { EVENTS } from "@/utils/data";
+// DÜZELTME: Statik veri importunu kaldırdık
+// import { EVENTS } from "@/utils/data";
 
-export default function CalendarView() {
+// Bileşene 'events' prop'u ekledik (Varsayılan boş dizi)
+export default function CalendarView({ events = [] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [direction, setDirection] = useState(0);
-
-  // --- YENİ: GÖRÜNÜM MODU (grid | month | year) ---
   const [viewMode, setViewMode] = useState("grid");
 
-  // --- TOOLTIP STATE ---
   const [tooltip, setTooltip] = useState({
     visible: false,
     x: 0,
@@ -34,7 +32,6 @@ export default function CalendarView() {
     setCurrentDate(newDate);
   };
 
-  // Yıl değiştirme (Yıl görünümündeyken oklar yılı değiştirsin diye)
   const changeYear = (dir) => {
     const newDate = new Date(currentDate);
     newDate.setFullYear(currentDate.getFullYear() + dir);
@@ -56,8 +53,11 @@ export default function CalendarView() {
     "December",
   ];
 
+  // DÜZELTME: Etkinlik filtreleme fonksiyonu artık prop'tan gelen 'events'i kullanıyor
   const getEventsForDay = (dateObj) => {
-    return EVENTS.filter((event) => {
+    return events.filter((event) => {
+      // Veritabanından gelen tarih formatını kontrol etmemiz gerekebilir.
+      // Genellikle "YYYY-MM-DD" veya Date objesi olarak gelir.
       const eDate = new Date(event.date);
       return (
         eDate.getDate() === dateObj.getDate() &&
@@ -67,7 +67,9 @@ export default function CalendarView() {
     });
   };
 
-  // --- MOUSE HOVER MANTIĞI ---
+  // ... (Geri kalan kodlar ve UI mantığı aynı kalabilir) ...
+  // Sadece handleMouseEnter, handleMouseMove vb. aynı kalacak
+
   const handleMouseEnter = (e, dateObj, dayEvents) => {
     if (dayEvents.length === 0) return;
     const label = `${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
@@ -90,23 +92,20 @@ export default function CalendarView() {
     setTooltip((prev) => ({ ...prev, visible: false }));
   };
 
-  // --- AY SEÇİMİ İŞLEVİ ---
   const handleMonthSelect = (monthIndex) => {
     const newDate = new Date(currentDate);
     newDate.setMonth(monthIndex);
     setCurrentDate(newDate);
-    setViewMode("grid"); // Seçimden sonra takvime dön
+    setViewMode("grid");
   };
 
-  // --- YIL SEÇİMİ İŞLEVİ ---
   const handleYearSelect = (yearValue) => {
     const newDate = new Date(currentDate);
     newDate.setFullYear(yearValue);
     setCurrentDate(newDate);
-    setViewMode("grid"); // Seçimden sonra takvime dön
+    setViewMode("grid");
   };
 
-  // --- AY OLUŞTURUCU (GRID) ---
   const renderMonthGrid = (dateReference, isCurrent = false) => {
     const year = dateReference.getFullYear();
     const month = dateReference.getMonth();
@@ -125,9 +124,7 @@ export default function CalendarView() {
             : "opacity-50 scale-90 pointer-events-auto cursor-pointer hover:opacity-80 transition-opacity"
         }`}
       >
-        {/* --- BAŞLIK (AY/YIL SEÇİMİ İÇİN GÜNCELLENDİ) --- */}
         <div className="text-center mb-4 flex justify-center items-center gap-2">
-          {/* Sadece ortadaki (aktif) takvimde tıklama özelliği olsun */}
           {isCurrent ? (
             <>
               <button
@@ -144,17 +141,13 @@ export default function CalendarView() {
               </button>
             </>
           ) : (
-            // Yanlardaki pasif takvimler için düz metin
             <h3 className="font-bold text-lg text-text-muted pointer-events-none">
               {months[month]} <span>{year}</span>
             </h3>
           )}
         </div>
 
-        {/* --- İÇERİK DEĞİŞTİRİCİ --- */}
-        {/* Eğer viewMode 'grid' değilse ve bu aktif aysa, seçim ekranlarını göster */}
         {isCurrent && viewMode === "month" ? (
-          // AY SEÇİM EKRANI
           <div className="grid grid-cols-3 gap-4 h-full place-content-center animate-in fade-in zoom-in duration-300">
             {months.map((m, index) => (
               <button
@@ -171,9 +164,7 @@ export default function CalendarView() {
             ))}
           </div>
         ) : isCurrent && viewMode === "year" ? (
-          // YIL SEÇİM EKRANI
           <div className="grid grid-cols-4 gap-3 h-full place-content-center animate-in fade-in zoom-in duration-300">
-            {/* 12 Yıllık bir aralık gösterelim */}
             {Array.from({ length: 12 }, (_, i) => year - 6 + i).map((y) => (
               <button
                 key={y}
@@ -189,7 +180,6 @@ export default function CalendarView() {
             ))}
           </div>
         ) : (
-          // NORMAL TAKVİM GRİDİ
           <div className="grid grid-cols-7 gap-1 sm:gap-2 animate-in fade-in duration-300">
             {isCurrent &&
               ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
@@ -238,8 +228,6 @@ export default function CalendarView() {
                     `}
                 >
                   {day}
-
-                  {/* --- NOKTALAR --- */}
                   {hasEvent && (
                     <div className="flex gap-0.5 mt-1">
                       {dayEvents.slice(0, 3).map((event, i) => {
@@ -276,64 +264,56 @@ export default function CalendarView() {
   );
 
   return (
-    <div className="w-full h-full bg-black/30 overflow-hidden relative flex flex-col items-center justify-center">
-      {/* --- TOOLTIP --- */}
+    <div className="w-full h-full overflow-hidden relative flex flex-col items-center justify-center">
       <AnimatePresence>
-        {tooltip.visible &&
-          viewMode === "grid" && ( // Sadece grid modunda tooltip göster
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              style={{
-                top: tooltip.y + 15,
-                left: tooltip.x + 15,
-                position: "fixed",
-                zIndex: 60,
-              }}
-              className="w-64 bg-ocean-dark/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-4 pointer-events-none"
-            >
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
-                <CalendarIcon size={14} className="text-primary-cyan" />
-                <span className="text-white font-bold text-sm">
-                  {tooltip.dateLabel}
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {tooltip.events.map((ev) => {
-                  const isPast = new Date(ev.date) < new Date();
-                  const dotColor = isPast ? "bg-red-500" : "bg-emerald-500";
-
-                  return (
-                    <div key={ev.id} className="flex gap-3">
-                      <div className={`w-1 rounded-full ${dotColor}`} />
-                      <div>
-                        <p
-                          className={`text-xs font-bold line-clamp-1 ${
-                            isPast
-                              ? "text-text-muted line-through"
-                              : "text-white"
-                          }`}
-                        >
-                          {ev.title}
-                        </p>
-                        <div className="flex items-center gap-1 text-[10px] text-text-muted mt-0.5">
-                          <Clock size={10} />
-                          <span>{ev.time || "Tüm Gün"}</span>
-                        </div>
+        {tooltip.visible && viewMode === "grid" && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            style={{
+              top: tooltip.y + 15,
+              left: tooltip.x + 15,
+              position: "fixed",
+              zIndex: 60,
+            }}
+            className="w-64 bg-ocean-dark/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-4 pointer-events-none"
+          >
+            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
+              <CalendarIcon size={14} className="text-primary-cyan" />
+              <span className="text-white font-bold text-sm">
+                {tooltip.dateLabel}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {tooltip.events.map((ev) => {
+                const isPast = new Date(ev.date) < new Date();
+                const dotColor = isPast ? "bg-red-500" : "bg-emerald-500";
+                return (
+                  <div key={ev.id} className="flex gap-3">
+                    <div className={`w-1 rounded-full ${dotColor}`} />
+                    <div>
+                      <p
+                        className={`text-xs font-bold line-clamp-1 ${
+                          isPast ? "text-text-muted line-through" : "text-white"
+                        }`}
+                      >
+                        {ev.title}
+                      </p>
+                      <div className="flex items-center gap-1 text-[10px] text-text-muted mt-0.5">
+                        <Clock size={10} />
+                        <span>{ev.time || "Tüm Gün"}</span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      {/* --- ANA KONTEYNER --- */}
       <div className="flex items-center justify-center w-full max-w-7xl px-4 gap-4 h-[80vh]">
-        {/* SOL: ÖNCEKİ AY (Sadece grid modunda göster) */}
         {viewMode === "grid" && (
           <div
             onClick={() => changeMonth(-1)}
@@ -348,7 +328,6 @@ export default function CalendarView() {
           </div>
         )}
 
-        {/* ORTA: ŞU ANKİ AY */}
         <motion.div
           key={currentDate.toString() + viewMode}
           initial={{ x: viewMode === "grid" ? direction * 50 : 0, opacity: 0 }}
@@ -356,7 +335,6 @@ export default function CalendarView() {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="w-full lg:w-1/2 bg-card-bg/80 backdrop-blur-md border border-white/10 rounded-3xl shadow-2xl p-2 sm:p-6 z-10 h-full max-h-[600px] flex flex-col"
         >
-          {/* Mobil Oklar (Sadece grid modunda göster) */}
           {viewMode === "grid" && (
             <div className="lg:hidden flex justify-between mb-2 px-2">
               <button
@@ -373,12 +351,9 @@ export default function CalendarView() {
               </button>
             </div>
           )}
-
-          {/* Ay Seçim modundaysa Geri butonu koyabiliriz veya başlığa tıklanınca kapanır */}
           {renderMonthGrid(currentDate, true)}
         </motion.div>
 
-        {/* SAĞ: SONRAKİ AY (Sadece grid modunda göster) */}
         {viewMode === "grid" && (
           <div
             onClick={() => changeMonth(1)}
