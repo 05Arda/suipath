@@ -1,6 +1,6 @@
 // app/layout.js
-import { Inter } from "next/font/google";
 import "./globals.css";
+import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers"; // Yeni oluşturduğumuz provider
 
 const inter = Inter({ subsets: ["latin"] });
