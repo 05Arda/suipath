@@ -19,7 +19,7 @@ export default function Header({ activeTab, setActiveTab }) {
         <Link href="/" onClick={() => setActiveTab("home")}>
           <div className="flex items-center gap-6">
             <Image
-              src="/sui.svg" // Logo dosyanızın adı neyse
+              src="/tracelogo.svg" // Logo dosyanızın adı neyse
               alt="Trace Logo"
               width={40}
               height={40}
