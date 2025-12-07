@@ -24,6 +24,7 @@ import CalendarPage from "@/components/calendar";
 import Events from "@/components/events";
 import NFTGallery from "@/components/nftGallery";
 import AdminPanel from "@/components/adminPanel";
+import WalrusPage from "@/components/walrusTest";
 
 // --- SERVER ACTIONS ---
 // DÜZELTME: createUser fonksiyonunu import ettik
@@ -88,7 +89,6 @@ function MainContent() {
     }
   };
 
-  // --- USE EFFECTS ---
   useEffect(() => {
     fetchGeneralData();
   }, []);
@@ -97,7 +97,6 @@ function MainContent() {
     fetchUserData();
   }, [fetchUserData, activeTab]);
 
-  // --- RENDER MANTIĞI ---
   const renderContent = () => {
     if (loading)
       return <div className="text-white text-center mt-20">Yükleniyor...</div>;
@@ -138,7 +137,7 @@ function MainContent() {
       user: userComponent,
       map: <MapPage events={eventsData} />,
       admin: <AdminPanel />,
-
+      walrus: <WalrusPage />,
       recommendedEvents: (
         <Events events={eventsData} filterTag={"recommended"} />
       ),
@@ -193,7 +192,6 @@ function MainContent() {
     <div className="min-h-screen flex w-full flex-col to-primary-blue font-sans">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Geçici Test Navigasyonu */}
       <div className="absolute transform -translate-x-1/2 left-1/2 top-20 z-40 flex flex-row justify-center gap-4 mt-2 bg-white/10 p-2 backdrop-blur-sm">
         <button
           onClick={() => setActiveTab("walrus")}

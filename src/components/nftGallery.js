@@ -36,22 +36,6 @@ export default function NFTGallery({ nfts, filterTag = null }) {
                         {nft.title}
                       </h3>
                     </div>
-
-                    {/* Fiyat ve Buton */}
-                    <div className="flex justify-between items-center bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/10">
-                      <div className="flex flex-col">
-                        <span className="text-[8px] text-gray-300 uppercase tracking-wide">
-                          Fiyat
-                        </span>
-                        <span className="text-xs font-bold text-emerald-400">
-                          {nft.price}
-                        </span>
-                      </div>
-
-                      <div className="w-6 h-6 rounded-full bg-primary-cyan flex items-center justify-center text-white text-[10px]">
-                        ➜
-                      </div>
-                    </div>
                   </div>
                   {/* Üstteki "Hot" Rozeti */}
                   <div className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-red-400/30">

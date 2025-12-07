@@ -114,22 +114,13 @@ export default function NftSwiper({
                   <p className="text-[10px] text-primary-cyan font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 -mb-1">
                     {nft.creator}
                   </p>
-                  <h3 className="text-white font-bold text-sm leading-tight shadow-black drop-shadow-md">
-                    {nft.title}
-                  </h3>
                 </div>
 
                 {/* Fiyat ve Buton */}
                 <div className="flex justify-between items-center bg-white/10 backdrop-blur-md rounded-lg p-2 border border-white/10">
-                  <div className="flex flex-col">
-                    <span className="text-[8px] text-gray-300 uppercase tracking-wide">
-                      Fiyat
-                    </span>
-                    <span className="text-xs font-bold text-emerald-400">
-                      {nft.price}
-                    </span>
-                  </div>
-
+                  <h3 className="text-white font-bold text-sm leading-tight shadow-black drop-shadow-md">
+                    {nft.title}
+                  </h3>
                   <div className="w-6 h-6 rounded-full bg-primary-cyan flex items-center justify-center text-white text-[10px]">
                     ➜
                   </div>

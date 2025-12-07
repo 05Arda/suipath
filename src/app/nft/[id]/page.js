@@ -171,19 +171,10 @@ export default function NFTDetailPage({
                   Creator: {nft.creator}
                 </p>
 
-                <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-text-muted uppercase mb-1">
-                      Price
-                    </span>
-                    <span className="text-xl font-bold text-emerald-400 flex items-center gap-1">
-                      <Wallet size={20} /> {nft.price}
-                    </span>
-                  </div>
+                <div className="flex justify-between items-center text-white">
+                  <div className="flex flex-col"></div>
                   <div className="text-right">
-                    <span className="text-xs text-text-muted uppercase mb-1">
-                      ID
-                    </span>
+                    ID
                     <p className="text-white font-mono font-bold bg-white/5 px-2 py-1 rounded">
                       #{nft.id}
                     </p>

@@ -342,18 +342,23 @@ export default function EventDetailPage() {
                 {/* KATIL BUTONU (Duruma göre değişen) */}
                 <button
                   onClick={handleJoinToggle}
-                  disabled={actionLoading}
-                  className={`w-full py-4 rounded-xl font-bold text-base transition-all duration-300 transform active:scale-95 ${
-                    isJoined
-                      ? "bg-transparent border-2 border-emerald-500 text-emerald-500 hover:bg-emerald-500/10" // Katıldıysa Yeşil Çerçeve
-                      : "bg-primary-cyan text-white hover:bg-white hover:text-black shadow-[0_0_20px_rgba(39,130,133,0.4)]" // Katılmadıysa Mavi Dolgu
-                  } ${actionLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  // DÜZELTME: isJoined true ise butonu devre dışı bırak
+                  disabled={actionLoading || isJoined}
+                  className={`
+    w-full py-4 rounded-xl font-bold text-base transition-all duration-300 transform active:scale-95
+    ${
+      isJoined // Katıldıysa stilini koru, ancak hover etkileşimini azalt
+        ? "bg-transparent border-2 border-emerald-500 text-emerald-500 opacity-80 cursor-default"
+        : "bg-primary-cyan text-white hover:bg-white hover:text-black shadow-[0_0_20px_rgba(39,130,133,0.4)]"
+    }
+    ${actionLoading ? "opacity-50 cursor-not-allowed" : ""}
+  `}
                 >
                   {/* Buton Metni */}
                   {actionLoading
                     ? "İşleniyor..."
                     : isJoined
-                    ? "Katıldınız!"
+                    ? "Katıldınız" // DÜZELTİLDİ: Açıklayıcı metin
                     : "Hemen Katıl"}
                 </button>
               </div>

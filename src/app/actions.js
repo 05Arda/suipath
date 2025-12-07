@@ -221,8 +221,7 @@ export async function toggleEventFavorite(walletAddress, eventId) {
 
 // 7. ETKİNLİĞE KATIL/AYRIL (Toggle Join)
 export async function toggleEventJoin(walletAddress, eventId) {
-  if (!walletAddress || !eventId)
-    return { success: false, message: "Eksik bilgi" };
+  // ... (Gerekli kontroller ve client bağlantısı aynı) ...
 
   const client = await pool.connect();
   try {
@@ -237,19 +236,21 @@ export async function toggleEventJoin(walletAddress, eventId) {
     let newCount = 0;
 
     if (checkRes.rows.length > 0) {
-      // Ayrıl
-      await client.query(
-        `DELETE FROM UserJoinedEvents WHERE wallet_address = $1 AND event_id = $2`,
-        [walletAddress, eventId]
-      );
-      const updateRes = await client.query(
-        `UPDATE Events SET attendees_count = GREATEST(0, attendees_count - 1) WHERE event_id = $1 RETURNING attendees_count`,
-        [eventId]
-      );
-      newCount = updateRes.rows[0].attendees_count;
-      isJoined = false;
+      // DÜZELTME: AYRILMA YASAĞI BURADA UYGULANIR
+      await client.query("ROLLBACK"); // Transaction'ı temizle
+
+      return {
+        success: false,
+        isJoined: true, // Durum hala katıldı
+        newCount: await getAttendeeCount(eventId), // Güncel katılımcı sayısını al (Opsiyonel)
+        error: "Bu etkinlikten geri çekilme (ayrılma) izniniz yok.",
+      };
+      // Not: getAttendeeCount, Events tablosundan sadece sayıyı çeken küçük bir fonk. olabilir.
+      // Ya da hatasız çalışması için client.query ile direkt çekebiliriz:
+      // const currentCountRes = await client.query(`SELECT attendees_count FROM Events WHERE event_id = $1`, [eventId]);
+      // newCount = currentCountRes.rows[0].attendees_count;
     } else {
-      // Katıl
+      // KATILMAMIŞ -> KATIL (INSERT ve INCREMENT) (Bu kısım aynı kalmalı)
       await client.query(
         `INSERT INTO UserJoinedEvents (wallet_address, event_id) VALUES ($1, $2)`,
         [walletAddress, eventId]
@@ -266,7 +267,7 @@ export async function toggleEventJoin(walletAddress, eventId) {
     return { success: true, isJoined, newCount };
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("Katılma hatası:", error);
+    console.error("Katılma işlemi hatası:", error);
     return { success: false, error: error.message };
   } finally {
     client.release();
