@@ -27,7 +27,6 @@ import Events from "@/components/events";
 import NFTGallery from "@/components/nftGallery";
 
 import WalrusPage from "@/components/walrus";
-import Test from "@/components/WalrusUploader";
 import AdminPanel from "@/components/adminPanel";
 
 import { EVENTS, NFTS, MOCK_USER } from "@/utils/data";
@@ -75,7 +74,6 @@ function MainContent() {
       calendar: <CalendarPage />,
       user: userComponent,
       map: <MapPage />,
-      walrus: <Test />,
       admin: <AdminPanel />,
 
       recommendedEvents: <Events events={EVENTS} filterTag={"recommended"} />,

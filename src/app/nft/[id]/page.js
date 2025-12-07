@@ -53,10 +53,6 @@ export default function NFTDetailPage({
   const currentTier = nft.tier_name.toUpperCase();
   const isMaxTier = currentTier === "PLATINUM";
 
-  const tierOrder = ["BRONZE", "SILVER", "GOLD", "PLATINUM"];
-  const nextTierIndex = tierOrder.indexOf(currentTier) + 1;
-  const nextTierName = tierOrder[nextTierIndex] || "PLATINUM"; // Hata önleme
-
   return (
     <div className="sticky top-0 max-h-screen bg-deep-bg py-24 px-10 rounded-4xl">
       {/* --- HEADER / BACK BUTTON --- */}
@@ -91,31 +87,6 @@ export default function NFTDetailPage({
             >
               <Award size={18} className="inline mr-1" /> {currentTier}
             </div>
-          </div>
-
-          {/* YÜKSELTME ALANI (ACTION) */}
-          <div className="bg-card-bg p-6 rounded-2xl border border-white/10 shadow-lg">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <Zap size={20} className="text-red-400" /> NFT Yükseltme İşlemi
-            </h2>
-            <p className="text-text-muted text-sm mb-4">
-              Bu NFT'yi{" "}
-              {isMaxTier
-                ? "daha fazla yükseltilemez."
-                : `bir sonraki seviye olan ${nextTierName}'a yükseltmek için admin onayı gereklidir.`}
-            </p>
-
-            <button
-              // Bu butona basıldığında upgrade_nft fonksiyonu çağrılır
-              disabled={isMaxTier}
-              className={`w-full py-3 rounded-xl font-bold transition-all ${
-                isMaxTier
-                  ? "bg-gray-600/50 text-text-muted cursor-not-allowed"
-                  : "bg-primary-cyan hover:bg-emerald-500 text-white shadow-md"
-              }`}
-            >
-              {isMaxTier ? "Maksimum Seviye" : `Yükseltme Talebi Gönder`}
-            </button>
           </div>
         </div>
 

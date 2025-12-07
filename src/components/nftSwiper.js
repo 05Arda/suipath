@@ -33,11 +33,18 @@ export default function NftSwiper({ filteredNftIds = [] }) {
       {showNftDetail && (
         <div className="absolute inset-0 flex justify-center items-center bg-deep-bg/90 z-60">
           {
-            <NFTDetailPage
-              nftId={selectedNftId}
-              showNftDetail={showNftDetail}
-              setShowNftDetail={setShowNftDetail}
-            />
+            <>
+              <NFTDetailPage
+                nftId={selectedNftId}
+                showNftDetail={showNftDetail}
+                setShowNftDetail={setShowNftDetail}
+              />
+              <div
+                className="absolute w-screen h-screen -z-1
+              "
+                onClick={() => setShowNftDetail(false)}
+              ></div>
+            </>
           }
         </div>
       )}
