@@ -1,4 +1,4 @@
-//Generated new keypair and alias for address with scheme "ed25519" [priceless-chrysoprase: 04]
+//Generated new keypair and alias for address with scheme "ed25519" [priceless-chrysoprase: yokya]
 
 import React from "react";
 import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
@@ -10,7 +10,7 @@ const TestCalculator = () => {
 
   // Kendi Package ID'nizi buraya yazın
   // Tırnak işaretleri kalmalı, sadece içindeki kodu değiştir:
-  const PACKAGE_ID = "...";
+  const PACKAGE_ID = "asdasd";
   const MODULE = "calculator";
   const FUNC = "topla_ve_duyur";
 

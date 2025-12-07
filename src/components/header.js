@@ -1,27 +1,48 @@
 "use client";
-import React from "react"; // useState kullanılmadığı için kaldırdım
+import React from "react";
 import Image from "next/image";
+import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit"; // Sui Hook'ları
 
-// EĞER YÖNTEM 2'yi kullanacaksanız (Dosya src/assets içindeyse):
-// import logo from '@/assets/logo.svg';
-// Ve aşağıda src={logo} yapmalısınız.
+export default function Header() {
+  // Şu an bağlı olan hesabı al
+  const account = useCurrentAccount();
 
-export default function Header({ activeTab, onTabChange }) {
   return (
-    <header
-      className={`${
-        activeTab == "map" ? "absolute" : "sticky"
-      } z-50 flex flex-row justify-start items-center w-full gap-6 p-6 bg-ocean-dark/90 backdrop-blur-sm rounded-b-3xl shadow-lg cursor-pointer`}
-      onClick={() => onTabChange("home")}
-    >
-      <Image
-        src="/vercel.svg"
-        alt="SuiPATH Logo"
-        width={40}
-        height={40}
-        priority // Logo olduğu için öncelikli yüklenmesi LCP (performans) için iyidir
-      />
-      <h1 className="text-2xl font-bold text-white">SuiPATH</h1>
+    <header className="sticky top-0 z-50 flex justify-center w-full">
+      <div className="flex flex-row justify-between items-center w-full px-8 py-4 bg-transparent backdrop-blur-md rounded-b-3xl shadow-lg">
+        {/* SOL TARAFA (LOGO) */}
+        <div className="flex items-center gap-2">
+          <Image
+            src="/logo.svg" // Logo dosyanızın adı neyse
+            alt="SuiPATH Logo"
+            width={40}
+            height={40}
+            priority
+          />
+          <h1 className="text-2xl font-bold text-white hidden sm:block">
+            SuiPATH
+          </h1>
+        </div>
+
+        {/* SAĞ TARAF (LOGIN / WALLET) */}
+        <div>
+          {/* ConnectButton: Mysten Labs'in hazır butonu.
+                Otomatik olarak modal açar, cüzdanları listeler ve bağlar.
+            */}
+          <ConnectButton
+            className="!bg-primary-cyan !text-white !rounded-full !font-bold hover:!bg-white hover:!text-primary-cyan transition-all"
+            connectText="Connect Wallet"
+          />
+
+          {/* Eğer hesap bağlıysa ek bilgi göstermek istersen: */}
+          {account && (
+            <div className="hidden">
+              {/* Buraya sadece giriş yapıldığında görünecek özel bir menü ekleyebilirsin */}
+              {/* Örn: account.address */}
+            </div>
+          )}
+        </div>
+      </div>
     </header>
   );
 }

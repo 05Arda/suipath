@@ -1,21 +1,74 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // useEffect eklendi
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, Settings, Ticket, Heart } from "lucide-react";
+import { ChevronLeft, Ticket, Heart, AlertCircle } from "lucide-react"; // AlertCircle ikonu eklendi
+
+import { useCurrentAccount } from "@mysten/dapp-kit"; // Cüzdan kontrolü için
 
 // Veri importu
 import { EVENTS, MOCK_USER } from "@/utils/data";
 
 // YENİ SWIPER BİLEŞENİNİ IMPORT EDİYORUZ
 import EventSwiper from "@/components/eventSwiper";
+import NftSwiper from "@/components/nftSwiper";
 
-export default function ProfilePage() {
+import Footer from "@/components/footer";
+
+export default function ProfilePage({
+  userId = null,
+  activeTab,
+  setActiveTab,
+}) {
   const router = useRouter();
   const params = useParams();
-  const [activeTab, setActiveTab] = useState("tickets");
+  const account = useCurrentAccount();
 
-  const user = MOCK_USER;
+  const targetAddress = userId || params?.id;
+  const isMyProfile = account?.address === targetAddress;
+
+  let user = null;
+  if (targetAddress) {
+    // Mock veriyi kopyala ve adresini güncelle (Simülasyon)
+    user = { ...MOCK_USER, walletAddress: targetAddress };
+
+    // Eğer bu benim profilimse ismi "Siz" yapabiliriz veya cüzdandan gelen veriyi kullanabiliriz.
+    if (isMyProfile) {
+      user.name = "My Account"; // veya account.label
+      user.username = `${targetAddress.slice(0, 6)}...${targetAddress.slice(
+        -4
+      )}`;
+    }
+  }
+  // Eğer kullanıcı yoksa, Loading veya Hata ekranı gösterip işlemi durduruyoruz.
+  // Bu kontrol return'den önce yapılmalı.
+  if (!targetAddress) {
+    return (
+      <div className="min-h-screen bg-deep-bg flex flex-col items-center justify-center p-4 text-center">
+        <div className="bg-red-500/10 p-6 rounded-full mb-4 animate-pulse">
+          <AlertCircle size={48} className="text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-2">
+          No Such User Found
+        </h2>
+        <p className="text-text-muted mb-6">
+          The profile you are looking for does not exist or may have been
+          deleted.
+        </p>
+        <button
+          onClick={() => {
+            router.push("/");
+            setActiveTab("home");
+          }}
+          className="px-6 py-3 bg-primary-cyan text-white rounded-xl font-bold hover:bg-white hover:text-black transition-all"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  // --- KULLANICI VARSA DEVAM ET ---
 
   // Veri filtreleme
   const joinedEvents = EVENTS.filter((event) =>
@@ -24,26 +77,12 @@ export default function ProfilePage() {
   const favoriteEvents = EVENTS.filter((event) =>
     user.favoriteEventIds.includes(event.id)
   );
-
-  const currentList = activeTab === "tickets" ? joinedEvents : favoriteEvents;
+  // Hata önleme: user.earnedNftIds undefined ise boş dizi ata
+  const earnedNfts = user.earnedNftIds || [];
 
   return (
-    <div className="min-h-screen w-[80%] mx-auto bg-deep-bg pb-24">
-      {/* --- HEADER --- */}
-      <div className="sticky top-0 z-40 bg-deep-bg/80 backdrop-blur-md border-b border-white/5 px-4 py-4 flex justify-between items-center">
-        <button
-          onClick={() => router.back()}
-          className="p-2 bg-card-bg rounded-full text-white hover:bg-white/10 transition-colors"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <span className="font-bold text-white text-lg">Profil</span>
-        <button className="p-2 bg-card-bg rounded-full text-white hover:bg-white/10 transition-colors">
-          <Settings size={20} />
-        </button>
-      </div>
-
-      {/* --- PROFİL BİLGİLERİ --- */}
+    <div className="min-h-screen bg-deep-bg p-12">
+      {/* --- PROFILE INFO --- */}
       <div className="flex flex-col items-center mt-6 px-4">
         <div className="relative">
           <div className="absolute inset-0 bg-primary-cyan blur-2xl opacity-40 rounded-full transform scale-110" />
@@ -66,7 +105,7 @@ export default function ProfilePage() {
           {user.role}
         </p>
 
-        {/* İstatistikler */}
+        {/* Statistics */}
         <div className="flex items-center gap-8 mt-6 w-full max-w-xs justify-center bg-card-bg p-4 rounded-2xl border border-white/5 shadow-lg">
           <div className="text-center">
             <span className="block text-xl font-bold text-white">
@@ -91,50 +130,59 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* --- TABS --- */}
-      <div className="mt-8 px-4">
-        <div className="flex p-1 bg-card-bg rounded-xl border border-white/5">
-          <button
-            onClick={() => setActiveTab("tickets")}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-2
-              ${
-                activeTab === "tickets"
-                  ? "bg-primary-cyan text-white shadow-lg"
-                  : "text-text-muted hover:text-white"
-              }`}
-          >
-            <Ticket size={16} />
-            <h1 className="text-white text-xl font-bold">Past Events</h1>
-          </button>
-          <button
-            onClick={() => setActiveTab("favorites")}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-2
-              ${
-                activeTab === "favorites"
-                  ? "bg-red-500 text-white shadow-lg"
-                  : "text-text-muted hover:text-white"
-              }`}
-          >
-            <Heart size={16} />
-            <h1 className="text-white text-xl font-bold">Favorites</h1>
-          </button>
+      {/* --- EVENT LIST (NOW USING SWIPER) --- */}
+      <div className="mt-4 px-2 w-[90%] mx-auto">
+        <div className="flex flex-row justify-between">
+          <h1 className="text-white text-2xl font-bold pl-2 mb-2">
+            Joined Events
+          </h1>
+          <p className="italic underline text-white self-end select-none cursor-pointer text-sm hover:text-gray-300 transition-colors">
+            Show more
+          </p>
         </div>
-      </div>
-
-      {/* --- ETKİNLİK LİSTESİ (ARTIK SWIPER KULLANIYOR) --- */}
-      <div className="mt-4 px-2">
-        {currentList.length === 0 ? (
+        {joinedEvents.length === 0 ? (
           <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
             <p className="text-text-muted">Henüz burada bir şey yok.</p>
           </div>
         ) : (
-          // Burada reusable EventSwiper bileşenini kullanıyoruz
-          <EventSwiper events={currentList} />
+          <EventSwiper events={joinedEvents} />
+        )}
+
+        <div className="flex flex-row justify-between">
+          <h1 className="text-white text-2xl font-bold pl-2 mb-2">
+            Favorite Events
+          </h1>
+          <p className="italic underline text-white self-end select-none cursor-pointer text-sm hover:text-gray-300 transition-colors">
+            Show more
+          </p>
+        </div>
+        {favoriteEvents.length === 0 ? (
+          <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
+            <p className="text-text-muted">Henüz burada bir şey yok.</p>
+          </div>
+        ) : (
+          <EventSwiper events={favoriteEvents} />
         )}
       </div>
-      <div className="mt-4 px-2">
-        <h1 className="text-white text-3xl font-bold">NFTs Earned</h1>
-        <EventSwiper events={currentList} />
+
+      {/* --- NFT LIST --- */}
+      <div className="mt-4 px-2 w-[90%] mx-auto">
+        <div className="flex flex-row justify-between">
+          <h1 className="text-white text-2xl font-bold pl-2 mb-2">
+            NFTs Earned
+          </h1>
+          <p className="italic underline text-white self-end select-none cursor-pointer text-sm hover:text-gray-300 transition-colors">
+            Show more
+          </p>
+        </div>
+
+        {earnedNfts.length === 0 ? (
+          <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
+            <p className="text-text-muted">No NFTs earned yet.</p>
+          </div>
+        ) : (
+          <NftSwiper filteredNftIds={earnedNfts} />
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 // src/utils/data.js
 
 export const MOCK_USER = {
-  id: 101,
+  id: "0x504ed9d70e1330ca1e6d274e46d885be6fb2b1bbab298d2d9a7f537eaa0d9d3f",
   name: "Arda Guler",
   username: "@ardaguler",
   role: "Community Manager",
@@ -11,7 +11,43 @@ export const MOCK_USER = {
   following: 45,
   favoriteEventIds: [1, 3],
   joinedEventIds: [2, 4],
+  earnedNftIds: [1, 3, 4],
 };
+
+// utils/data.js
+
+// ... (Mevcut EVENTS ve CATEGORIES kodları yukarıda)
+
+export const NFTS = [
+  {
+    id: 1,
+    title: "Cyber Ocean #001",
+    creator: "@sui_artist",
+    price: "150 SUI",
+    image: "/nfts/bronze.jpeg",
+  },
+  {
+    id: 2,
+    title: "Neon Jellyfish",
+    creator: "@deep_sea",
+    price: "450 SUI",
+    image: "/nfts/silver.jpeg",
+  },
+  {
+    id: 3,
+    title: "Abstract Wave",
+    creator: "@wave_maker",
+    price: "80 SUI",
+    image: "/nfts/gold.jpeg",
+  },
+  {
+    id: 4,
+    title: "Glitch Coral",
+    creator: "@digital_reef",
+    price: "1200 SUI",
+    image: "/nfts/platinium.jpeg",
+  },
+];
 
 export const CATEGORIES = [
   "Bootcamp",
