@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 // Swiper
@@ -10,6 +10,8 @@ import { FreeMode, Autoplay } from "swiper/modules";
 
 // Veri importu
 import { NFTS } from "@/utils/data";
+
+import NFTDetailPage from "@/app/nft/[id]/page";
 
 // Varsayılan değer [] atandı (Hata önleyici)
 export default function NftSwiper({ filteredNftIds = [] }) {
@@ -23,8 +25,22 @@ export default function NftSwiper({ filteredNftIds = [] }) {
 
   if (displayNfts.length === 0) return null; // Gösterilecek NFT yoksa bileşeni render etme
 
+  const [showNftDetail, setShowNftDetail] = useState(false);
+  const [selectedNftId, setSelectedNftId] = useState(1);
+
   return (
     <div className="w-full py-6">
+      {showNftDetail && (
+        <div className="absolute inset-0 flex justify-center items-center bg-deep-bg/70 z-60">
+          {
+            <NFTDetailPage
+              nftId={selectedNftId}
+              showNftDetail={showNftDetail}
+              setShowNftDetail={setShowNftDetail}
+            />
+          }
+        </div>
+      )}
       <Swiper
         modules={[FreeMode, Autoplay]}
         spaceBetween={15}
@@ -44,11 +60,15 @@ export default function NftSwiper({ filteredNftIds = [] }) {
         className="w-full"
       >
         {displayNfts.map((nft) => (
-          <SwiperSlide key={nft.id} className="h-auto">
-            <Link
-              href={`/nft/${nft.id}`}
-              className="group relative block w-full aspect-[4/5] rounded-2xl overflow-hidden border border-white/5 hover:border-primary-cyan transition-all duration-300 shadow-lg"
-            >
+          <SwiperSlide
+            key={nft.id}
+            className="h-auto"
+            onClick={() => {
+              setSelectedNftId(nft.id);
+              setShowNftDetail(true);
+            }}
+          >
+            <div className="group relative block w-full aspect-[4/5] rounded-2xl overflow-hidden border border-white/5 hover:border-primary-cyan transition-all duration-300 shadow-lg">
               {/* --- RESİM --- */}
               <Image
                 src={nft.image}
@@ -56,10 +76,8 @@ export default function NftSwiper({ filteredNftIds = [] }) {
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-
               {/* --- OVERLAY --- */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
-
               {/* --- İÇERİK --- */}
               <div className="absolute bottom-0 left-0 w-full p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                 {/* Sanatçı ve Başlık */}
@@ -88,12 +106,11 @@ export default function NftSwiper({ filteredNftIds = [] }) {
                   </div>
                 </div>
               </div>
-
               {/* Üstteki "Hot" Rozeti */}
               <div className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-red-400/30">
                 HOT
               </div>
-            </Link>
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>

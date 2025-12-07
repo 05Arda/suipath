@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import HomeSwiper from "@/components/homeSwiper";
 import { EVENTS } from "@/utils/data";
 
-export default function HomePage() {
+export default function HomePage({ activeTab, setActiveTab }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -47,11 +47,15 @@ export default function HomePage() {
         Title={"Tüm Etkinlikler"}
         swiperFilter={null}
         searchQuery={searchQuery}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
       />
       <HomeSwiper
         Title={"Sizin İçin Önerilenler"}
-        swiperFilter={"reccomended"}
+        swiperFilter={"recommended"}
         searchQuery={searchQuery}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
       />
     </div>
   );

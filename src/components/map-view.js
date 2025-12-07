@@ -71,21 +71,22 @@ export default function MapView() {
                   {event.title}
                 </h3>
 
-                <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
+                <div className="flex items-center gap-1 text-xs text-slate-700 mb-1">
                   <Calendar size={12} />
                   <span>{event.date}</span>
                 </div>
 
-                <div className="flex items-center gap-1 text-xs text-slate-500 mb-3">
+                <div className="flex items-center gap-1 text-xs text-slate-700 mb-3">
                   <MapPin size={12} />
                   <span className="truncate">{event.location}</span>
                 </div>
 
                 <Link
                   href={`/event/${event.id}`}
-                  className="flex items-center justify-center gap-1 w-full bg-primary-cyan text-white text-xs py-1.5 rounded hover:bg-ocean-dark transition-colors"
+                  className="flex items-center justify-center gap-1 w-full bg-primary-cyan rounded hover:bg-ocean-dark transition-colors"
                 >
-                  Detayları Gör <ChevronRight size={12} />
+                  <p className="text-white text-xs font-bold">Detayları Gör</p>
+                  <ChevronRight className="text-white" size={20} />
                 </Link>
               </div>
             </Popup>

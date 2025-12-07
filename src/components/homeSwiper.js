@@ -17,12 +17,24 @@ import { FreeMode, Autoplay } from "swiper/modules";
 // Veri importu
 import { EVENTS } from "@/utils/data";
 
-export default function HomeSwiper({ Title, swiperFilter }) {
+export default function HomeSwiper({
+  Title,
+  swiperFilter,
+  activeTab,
+  setActiveTab,
+}) {
   return (
     <div className="w-full py-8">
       <div className="flex justify-between items-end mb-4 px-2">
         <h2 className="text-xl font-bold text-text-primary">{Title}</h2>
-        <span className="text-xs text-primary-cyan font-medium cursor-pointer italic underline">
+        <span
+          className="text-sm text-white font-medium cursor-pointer italic underline"
+          onClick={() =>
+            setActiveTab(
+              swiperFilter == "recommended" ? "recommendedEvents" : "allEvents"
+            )
+          }
+        >
           Show All
         </span>
       </div>

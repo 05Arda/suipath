@@ -1,17 +1,18 @@
 // src/utils/data.js
 
 export const MOCK_USER = {
-  id: "0x504ed9d70e1330ca1e6d274e46d885be6fb2b1bbab298d2d9a7f537eaa0d9d3f",
-  name: "Arda Guler",
-  username: "@ardaguler",
-  role: "Community Manager",
-  avatar:
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80",
-  followers: 1240,
-  following: 45,
-  favoriteEventIds: [1, 3],
-  joinedEventIds: [2, 4],
-  earnedNftIds: [1, 3, 4],
+  "0x504ed9d70e1330ca1e6d274e46d885be6fb2b1bbab298d2d9a7f537eaa0d9d3f": {
+    name: "Arda Guler",
+    username: "@ardaguler",
+    role: "Community Manager",
+    avatar:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80",
+    followers: 1240,
+    following: 45,
+    favoriteEventIds: [1, 3],
+    joinedEventIds: [2, 4],
+    earnedNftIds: [1, 3, 4],
+  },
 };
 
 // utils/data.js
@@ -25,6 +26,7 @@ export const NFTS = [
     creator: "@sui_artist",
     price: "150 SUI",
     image: "/nfts/bronze.jpeg",
+    tier_name: "BRONZE",
   },
   {
     id: 2,
@@ -32,6 +34,7 @@ export const NFTS = [
     creator: "@deep_sea",
     price: "450 SUI",
     image: "/nfts/silver.jpeg",
+    tier_name: "SILVER",
   },
   {
     id: 3,
@@ -39,6 +42,7 @@ export const NFTS = [
     creator: "@wave_maker",
     price: "80 SUI",
     image: "/nfts/gold.jpeg",
+    tier_name: "GOLD",
   },
   {
     id: 4,
@@ -46,6 +50,7 @@ export const NFTS = [
     creator: "@digital_reef",
     price: "1200 SUI",
     image: "/nfts/platinium.jpeg",
+    tier_name: "PLATINUM",
   },
 ];
 
@@ -73,7 +78,7 @@ export const EVENTS = [
     attendees: 342,
     capacity: 400,
     price: "Free",
-    tags: ["blockchain", "sui", "networking", "reccomended"],
+    tags: ["blockchain", "sui", "networking", "recommended"],
   },
   {
     id: 2,
@@ -108,7 +113,7 @@ export const EVENTS = [
     attendees: 120,
     capacity: 500,
     price: "₺450",
-    tags: ["music", "festival", "neon", "reccomended"],
+    tags: ["music", "festival", "neon", "recommended"],
   },
   {
     id: 4,
@@ -125,7 +130,7 @@ export const EVENTS = [
     attendees: 15,
     capacity: 100,
     price: "Free",
-    tags: ["hackathon", "global", "sustainability", "reccomended"],
+    tags: ["hackathon", "global", "sustainability", "recommended"],
   },
   {
     id: 5,
@@ -159,6 +164,6 @@ export const EVENTS = [
     attendees: 200,
     capacity: 300,
     price: "₺100",
-    tags: ["digital art", "exhibition", "NFT", "reccomended"],
+    tags: ["digital art", "exhibition", "NFT", "recommended"],
   },
 ];

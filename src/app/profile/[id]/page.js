@@ -1,19 +1,20 @@
 "use client";
-import React, { useState, useEffect } from "react"; // useEffect eklendi
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, Ticket, Heart, AlertCircle } from "lucide-react"; // AlertCircle ikonu eklendi
+import { ChevronLeft, Ticket, Heart, AlertCircle } from "lucide-react";
 
-import { useCurrentAccount } from "@mysten/dapp-kit"; // Cüzdan kontrolü için
+import { useCurrentAccount } from "@mysten/dapp-kit";
 
-// Veri importu
 import { EVENTS, MOCK_USER } from "@/utils/data";
 
-// YENİ SWIPER BİLEŞENİNİ IMPORT EDİYORUZ
 import EventSwiper from "@/components/eventSwiper";
 import NftSwiper from "@/components/nftSwiper";
+import { setStyle } from "framer-motion";
 
-import Footer from "@/components/footer";
+// Footer import edilmemişse veya kullanılmıyorsa bu sayfada kaldırılabilir,
+// ama main layout'ta varsa burada tekrar çağırmak yerine children olarak gelebilir.
+// import Footer from "@/components/footer";
 
 export default function ProfilePage({
   userId = null,
@@ -24,45 +25,60 @@ export default function ProfilePage({
   const params = useParams();
   const account = useCurrentAccount();
 
+  // Hedef adresi belirle: Prop olarak geldiyse onu, yoksa URL'den, yoksa cüzdandan
   const targetAddress = userId || params?.id;
   const isMyProfile = account?.address === targetAddress;
 
   let user = null;
-  if (targetAddress) {
-    // Mock veriyi kopyala ve adresini güncelle (Simülasyon)
-    user = { ...MOCK_USER, walletAddress: targetAddress };
 
-    // Eğer bu benim profilimse ismi "Siz" yapabiliriz veya cüzdandan gelen veriyi kullanabiliriz.
-    if (isMyProfile) {
-      user.name = "My Account"; // veya account.label
-      user.username = `${targetAddress.slice(0, 6)}...${targetAddress.slice(
-        -4
-      )}`;
+  if (targetAddress) {
+    // 1. DÜZELTME: Veriyi direkt adresi key olarak kullanarak çekiyoruz
+    const foundUser = MOCK_USER[targetAddress];
+
+    if (foundUser) {
+      // Eğer mock datada bu kullanıcı kayıtlıysa veriyi al
+      user = { ...foundUser, walletAddress: targetAddress };
+    } else if (isMyProfile) {
+      // 2. DÜZELTME: Kullanıcı veritabanında yoksa ama cüzdan bağlıysa (Yeni Üye)
+      // Sayfa patlamasın diye varsayılan boş bir profil oluşturuyoruz.
+      user = {
+        name: "New User",
+        username: `${targetAddress.slice(0, 6)}...${targetAddress.slice(-4)}`,
+        role: "Explorer",
+        // Varsayılan bir avatar (DiceBear API örneği veya static resim)
+        avatar: `https://api.dicebear.com/9.x/avataaars/svg?seed=${targetAddress}`,
+        followers: 0,
+        following: 0,
+        joinedEventIds: [],
+        favoriteEventIds: [],
+        earnedNftIds: [],
+        walletAddress: targetAddress,
+      };
     }
+    // Not: Eğer başkasının profiline bakılıyorsa ve veri yoksa user null kalır.
   }
-  // Eğer kullanıcı yoksa, Loading veya Hata ekranı gösterip işlemi durduruyoruz.
-  // Bu kontrol return'den önce yapılmalı.
-  if (!targetAddress) {
+
+  // --- KULLANICI YOKSA HATA EKRANI ---
+  if (!user) {
     return (
       <div className="min-h-screen bg-deep-bg flex flex-col items-center justify-center p-4 text-center">
         <div className="bg-red-500/10 p-6 rounded-full mb-4 animate-pulse">
           <AlertCircle size={48} className="text-red-500" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">
-          No Such User Found
-        </h2>
+        <h2 className="text-2xl font-bold text-white mb-2">User Not Found</h2>
         <p className="text-text-muted mb-6">
-          The profile you are looking for does not exist or may have been
-          deleted.
+          The profile you are looking for ({targetAddress?.slice(0, 6)}...) does
+          not exist or has no data.
         </p>
         <button
           onClick={() => {
-            router.push("/");
-            setActiveTab("home");
+            // Router varsa anasayfaya dön, yoksa tab değiştir
+            if (setActiveTab) setActiveTab("home");
+            else router.push("/");
           }}
           className="px-6 py-3 bg-primary-cyan text-white rounded-xl font-bold hover:bg-white hover:text-black transition-all"
         >
-          Go Back
+          Go Back Home
         </button>
       </div>
     );
@@ -70,23 +86,27 @@ export default function ProfilePage({
 
   // --- KULLANICI VARSA DEVAM ET ---
 
-  // Veri filtreleme
+  // 3. DÜZELTME: Güvenli veri erişimi (Optional Chaining ve Default Array)
+  // user.joinedEventIds undefined olsa bile [] olarak kabul et ki filter patlamasın.
+  const safeJoinedIds = user.joinedEventIds || [];
+  const safeFavoriteIds = user.favoriteEventIds || [];
+  const safeNftIds = user.earnedNftIds || [];
+
   const joinedEvents = EVENTS.filter((event) =>
-    user.joinedEventIds.includes(event.id)
+    safeJoinedIds.includes(event.id)
   );
+
   const favoriteEvents = EVENTS.filter((event) =>
-    user.favoriteEventIds.includes(event.id)
+    safeFavoriteIds.includes(event.id)
   );
-  // Hata önleme: user.earnedNftIds undefined ise boş dizi ata
-  const earnedNfts = user.earnedNftIds || [];
 
   return (
-    <div className="min-h-screen bg-deep-bg p-12">
+    <div className="min-h-screen bg-deep-bg p-4 sm:p-12 pb-32">
       {/* --- PROFILE INFO --- */}
       <div className="flex flex-col items-center mt-6 px-4">
         <div className="relative">
           <div className="absolute inset-0 bg-primary-cyan blur-2xl opacity-40 rounded-full transform scale-110" />
-          <div className="relative w-28 h-28 rounded-full border-4 border-card-bg overflow-hidden shadow-2xl">
+          <div className="relative w-28 h-28 rounded-full border-4 border-card-bg overflow-hidden shadow-2xl bg-gray-800">
             <Image
               src={user.avatar}
               alt={user.name}
@@ -123,66 +143,82 @@ export default function ProfilePage({
           <div className="w-px h-8 bg-white/10" />
           <div className="text-center">
             <span className="block text-xl font-bold text-white">
-              {user.joinedEventIds.length}
+              {safeJoinedIds.length}
             </span>
             <span className="text-xs text-text-muted">Etkinlik</span>
           </div>
         </div>
       </div>
 
-      {/* --- EVENT LIST (NOW USING SWIPER) --- */}
-      <div className="mt-4 px-2 w-[90%] mx-auto">
-        <div className="flex flex-row justify-between">
-          <h1 className="text-white text-2xl font-bold pl-2 mb-2">
-            Joined Events
-          </h1>
-          <p className="italic underline text-white self-end select-none cursor-pointer text-sm hover:text-gray-300 transition-colors">
-            Show more
-          </p>
-        </div>
-        {joinedEvents.length === 0 ? (
-          <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
-            <p className="text-text-muted">Henüz burada bir şey yok.</p>
+      {/* --- EVENT LIST --- */}
+      <div className="mt-8 px-2 w-full lg:w-[90%] mx-auto space-y-8">
+        {/* Joined Events Section */}
+        <div>
+          <div className="flex flex-row justify-between items-end mb-4">
+            <h1 className="text-white text-2xl font-bold pl-2">
+              Joined Events
+            </h1>
+            <button
+              className="italic underline text-white text-sm hover:text-primary-cyan transition-colors"
+              onClick={() => setActiveTab && setActiveTab("joinedEvents")}
+            >
+              Show more
+            </button>
           </div>
-        ) : (
-          <EventSwiper events={joinedEvents} />
-        )}
-
-        <div className="flex flex-row justify-between">
-          <h1 className="text-white text-2xl font-bold pl-2 mb-2">
-            Favorite Events
-          </h1>
-          <p className="italic underline text-white self-end select-none cursor-pointer text-sm hover:text-gray-300 transition-colors">
-            Show more
-          </p>
-        </div>
-        {favoriteEvents.length === 0 ? (
-          <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
-            <p className="text-text-muted">Henüz burada bir şey yok.</p>
-          </div>
-        ) : (
-          <EventSwiper events={favoriteEvents} />
-        )}
-      </div>
-
-      {/* --- NFT LIST --- */}
-      <div className="mt-4 px-2 w-[90%] mx-auto">
-        <div className="flex flex-row justify-between">
-          <h1 className="text-white text-2xl font-bold pl-2 mb-2">
-            NFTs Earned
-          </h1>
-          <p className="italic underline text-white self-end select-none cursor-pointer text-sm hover:text-gray-300 transition-colors">
-            Show more
-          </p>
+          {joinedEvents.length === 0 ? (
+            <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
+              <p className="text-text-muted">Not joined any events yet.</p>
+            </div>
+          ) : (
+            <EventSwiper events={joinedEvents} />
+          )}
         </div>
 
-        {earnedNfts.length === 0 ? (
-          <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
-            <p className="text-text-muted">No NFTs earned yet.</p>
+        {/* Favorite Events Section */}
+        <div>
+          <div className="flex flex-row justify-between items-end mb-4">
+            <h1 className="text-white text-2xl font-bold pl-2">
+              Favorite Events
+            </h1>
+            <button
+              className="italic underline text-white text-sm hover:text-primary-cyan transition-colors"
+              onClick={() => setActiveTab && setActiveTab("favoriteEvents")}
+            >
+              Show more
+            </button>
           </div>
-        ) : (
-          <NftSwiper filteredNftIds={earnedNfts} />
-        )}
+          {favoriteEvents.length === 0 ? (
+            <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
+              <p className="text-text-muted">No favorites yet.</p>
+            </div>
+          ) : (
+            <EventSwiper events={favoriteEvents} />
+          )}
+        </div>
+
+        {/* NFT List Section */}
+        <div>
+          <div className="flex flex-row justify-between items-end mb-4">
+            <h1 className="text-white text-2xl font-bold pl-2">NFTs Earned</h1>
+            <span
+              className="text-white text-sm cursor-pointer italic underline "
+              onClick={() => setActiveTab("nftGallery")}
+            >
+              Show more
+            </span>
+          </div>
+          {safeNftIds.length === 0 ? (
+            <div className="text-center py-10 opacity-50 bg-card-bg/50 rounded-2xl mx-2 border border-white/5 border-dashed">
+              <p className="text-text-muted">No NFTs earned yet.</p>
+            </div>
+          ) : (
+            <NftSwiper
+              filteredNftIds={safeNftIds}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
