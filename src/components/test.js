@@ -1,4 +1,4 @@
-//Generated new keypair and alias for address with scheme "ed25519" [priceless-chrysoprase: 0x6b2fe195967233b64e7a71bca8baaefa5f930e15d528f523972d820038eed554]
+//Generated new keypair and alias for address with scheme "ed25519" [priceless-chrysoprase: 04]
 
 import React from "react";
 import { useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
