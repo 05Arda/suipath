@@ -5,7 +5,7 @@ export default function NFTGallery({ nfts, filterTag = null }) {
   const nftList = nfts || [];
 
   return (
-    <div className="w-full grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 p-4 py-24">
+    <div className="w-full grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 p-4 py-24 bg-deep-bg/90">
       {nftList
         .filter((nft) => (filterTag ? nft.tags?.includes(filterTag) : true))
         .map((nft) => {

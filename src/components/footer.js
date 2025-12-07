@@ -22,23 +22,6 @@ export default function Footer({ activeTab, onTabChange }) {
 
   const handleTabClick = (itemId) => {
     onTabChange(itemId);
-    /*
-    if (itemId === "user") {
-      if (account) {
-        // Cüzdan bağlıysa profile git
-        router.push(`/profile/${account.address}`);
-        onTabChange(itemId);
-      } else {
-        // --- CÜZDAN BAĞLI DEĞİLSE UYARIYI GÖSTER ---
-        setShowLoginWarning(true);
-
-        // 3 saniye sonra uyarıyı otomatik kapat
-        setTimeout(() => {
-          setShowLoginWarning(false);
-        }, 3000);
-      }
-    } else {
-    }*/
   };
 
   return (

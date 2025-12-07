@@ -8,18 +8,9 @@ export default function HomePage({ activeTab, setActiveTab }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="flex flex-col w-full min-h-full bg-deep-bg px-4 py-8 pt-20">
-      {/* --- SEARCH BAR --- */}
+    <div className="flex flex-col w-full min-h-full px-4 py-8 pt-20">
       <div className="self-end w-full max-w-md m-3 px-2">
-        {" "}
-        {/* w-2xl yerine max-w-md daha kontrollü olur */}
         <div className="relative group">
-          {/* İKON DÜZELTMELERİ:
-              1. z-10: Inputun üstüne çıkması için (bulanıklığı engeller).
-              2. pointer-events-none: İkona tıklayınca inputun focuslanması için.
-              3. text-primary-cyan: Varsayılan renk (focus olunca beyaz oluyor).
-              4. size={20}: İkon boyutu.
-          */}
           <Search
             size={20}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-primary-cyan group-focus-within:text-white pointer-events-none transition-colors"

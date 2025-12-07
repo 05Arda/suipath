@@ -276,7 +276,7 @@ export default function CalendarView() {
   );
 
   return (
-    <div className="w-full h-full bg-deep-bg overflow-hidden relative flex flex-col items-center justify-center">
+    <div className="w-full h-full bg-black/30 overflow-hidden relative flex flex-col items-center justify-center">
       {/* --- TOOLTIP --- */}
       <AnimatePresence>
         {tooltip.visible &&

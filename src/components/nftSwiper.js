@@ -31,7 +31,7 @@ export default function NftSwiper({ filteredNftIds = [] }) {
   return (
     <div className="w-full py-6">
       {showNftDetail && (
-        <div className="absolute inset-0 flex justify-center items-center bg-deep-bg/70 z-60">
+        <div className="absolute inset-0 flex justify-center items-center bg-deep-bg/90 z-60">
           {
             <NFTDetailPage
               nftId={selectedNftId}

@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
-  useSuiClient,
+  useSuiClient, // Artık obje aramaya gerek yok ama client kalsın
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import {
@@ -12,16 +12,14 @@ import {
   UserMinus,
   Search,
   CheckCircle,
-  XCircle,
-  Loader2,
   Copy,
   Check,
   Database,
   Box,
-  Key,
+  Unlock, // Kilit açık ikonu
 } from "lucide-react";
 
-// --- 🛠️ DEVELOPMENT AYARLARI (BURAYI DOLDURUN) ---
+// --- 🛠️ DEVELOPMENT AYARLARI ---
 const CONST_PACKAGE_ID =
   "0xdeff9dea27b4cb5fd007c58ba622697c7b13aeee805900f493ff68680be5e606";
 const CONST_COLLECTION_ID =
@@ -29,48 +27,14 @@ const CONST_COLLECTION_ID =
 
 export default function AdminPanel() {
   const account = useCurrentAccount();
-  const client = useSuiClient();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
 
   // --- STATES ---
-  const [adminCapId, setAdminCapId] = useState(null);
+  // adminCapId state'ini kaldırdık çünkü artık kontrol etmiyoruz.
   const [targetAddress, setTargetAddress] = useState("");
   const [selectedTier, setSelectedTier] = useState("2");
-
-  const [isChecking, setIsChecking] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
-  const [copiedId, setCopiedId] = useState(null); // Hangi ID kopyalandı?
-
-  // --- 1. ADMIN CAP BULUCU (OTOMATİK) ---
-  useEffect(() => {
-    const findAdminCap = async () => {
-      if (!account) return setAdminCapId(null);
-      setIsChecking(true);
-
-      try {
-        // Sabit Package ID üzerinden AdminCap arıyoruz
-        const structType = `${CONST_PACKAGE_ID}::collection::AdminCap`;
-        console.log("🔍 Checking for AdminCap:", structType);
-
-        const objects = await client.getOwnedObjects({
-          owner: account.address,
-          filter: { StructType: structType },
-        });
-
-        if (objects.data.length > 0) {
-          setAdminCapId(objects.data[0].data.objectId);
-        } else {
-          setAdminCapId(null);
-        }
-      } catch (err) {
-        console.error("Error finding AdminCap:", err);
-      } finally {
-        setIsChecking(false);
-      }
-    };
-
-    findAdminCap();
-  }, [account, client]);
+  const [copiedId, setCopiedId] = useState(null);
 
   // --- ID KOPYALAMA ---
   const copyToClipboard = (text, type) => {
@@ -81,13 +45,17 @@ export default function AdminPanel() {
 
   // --- ACTIONS ---
   const handleWhitelistUser = () => {
-    if (!adminCapId) return alert("Hata: Admin yetkisi yok!");
+    // Admin kontrolünü kaldırdık, sadece cüzdan bağlı mı ona bakıyoruz
+    if (!account) return alert("Lütfen cüzdan bağlayın!");
 
     const tx = new Transaction();
     tx.moveCall({
       target: `${CONST_PACKAGE_ID}::collection::whitelist_user`,
       arguments: [
-        tx.object(adminCapId),
+        // NOT: Kontratınızdan AdminCap parametresini kaldırdığınızı varsayarak
+        // buradaki AdminCap argümanını sildik.
+        // tx.object(adminCapId),  <-- SİLİNDİ
+
         tx.object(CONST_COLLECTION_ID),
         tx.pure.address(targetAddress),
         tx.pure.u8(Number(selectedTier)),
@@ -104,12 +72,13 @@ export default function AdminPanel() {
   };
 
   const handleRemoveWhitelist = () => {
-    if (!adminCapId) return alert("Hata: Admin yetkisi yok!");
+    if (!account) return alert("Lütfen cüzdan bağlayın!");
+
     const tx = new Transaction();
     tx.moveCall({
       target: `${CONST_PACKAGE_ID}::collection::remove_from_whitelist`,
       arguments: [
-        tx.object(adminCapId),
+        // NOT: Burada da AdminCap argümanı kaldırıldı.
         tx.object(CONST_COLLECTION_ID),
         tx.pure.address(targetAddress),
       ],
@@ -127,20 +96,20 @@ export default function AdminPanel() {
   return (
     <div className="w-full max-w-5xl mx-auto p-6 bg-deep-bg text-white min-h-screen pb-32 pt-24">
       <div className="flex items-center gap-3 mb-6">
-        <Shield size={32} className="text-primary-cyan" />
-        <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+        {/* İkonu değiştirdik, artık herkese açık */}
+        <Unlock size={32} className="text-emerald-400" />
+        <div>
+          <h1 className="text-3xl font-bold text-white">Public Dashboard</h1>
+          <p className="text-xs text-text-muted">
+            Admin yetkisi gerekmez (Test Modu)
+          </p>
+        </div>
       </div>
 
-      {/* --- DEVELOPMENT INFO CARD (YENİ EKLENEN KISIM) --- */}
-      <div className="bg-card-bg/50 border border-border-color rounded-2xl p-6 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 relative overflow-hidden">
-        {/* Arka plan glow */}
-        <div
-          className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${
-            adminCapId
-              ? "from-emerald-500 to-primary-cyan"
-              : "from-red-500 to-orange-500"
-          }`}
-        />
+      {/* --- INFO CARD --- */}
+      <div className="bg-card-bg/50 border border-border-color rounded-2xl p-6 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 relative overflow-hidden">
+        {/* Glow effect */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-primary-cyan" />
 
         {/* 1. PACKAGE ID */}
         <div className="flex flex-col gap-1">
@@ -183,56 +152,12 @@ export default function AdminPanel() {
             )}
           </button>
         </div>
-
-        {/* 3. ADMIN CAP ID (SENİN İSTEDİĞİN KISIM) */}
-        <div className="flex flex-col gap-1 relative">
-          <span className="text-[10px] uppercase font-bold text-text-muted flex items-center gap-1">
-            <Key size={12} /> Your Admin Authority ID
-          </span>
-          {isChecking ? (
-            <div className="flex items-center gap-2 text-xs text-primary-cyan animate-pulse py-2">
-              <Loader2 size={14} className="animate-spin" /> Searching Wallet...
-            </div>
-          ) : adminCapId ? (
-            <button
-              onClick={() => copyToClipboard(adminCapId, "admin")}
-              className="text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 p-2 rounded text-left transition-colors flex justify-between items-center group"
-            >
-              <span className="truncate">{adminCapId}</span>
-              {copiedId === "admin" ? (
-                <Check size={12} />
-              ) : (
-                <Copy size={12} className="opacity-0 group-hover:opacity-100" />
-              )}
-            </button>
-          ) : (
-            <div className="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded flex items-center gap-2">
-              <XCircle size={14} /> Not Found / No Rights
-            </div>
-          )}
-        </div>
       </div>
 
       {/* --- USER MANAGEMENT PANEL --- */}
-      <div
-        className={`bg-card-bg border border-border-color rounded-2xl p-8 shadow-2xl max-w-2xl mx-auto relative transition-all duration-500 ${
-          !adminCapId ? "opacity-50 grayscale pointer-events-none" : ""
-        }`}
-      >
-        {/* KİLİT EKRANI (Admin Değilse) */}
-        {!adminCapId && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-            <div className="bg-black/80 px-6 py-4 rounded-2xl backdrop-blur-md border border-white/10 text-white font-bold flex flex-col items-center gap-3 shadow-2xl">
-              <Shield size={32} className="text-red-500" />
-              <span>Admin Yetkisi Yok</span>
-              <span className="text-xs text-text-muted font-normal text-center">
-                Bağlı olan cüzdan (
-                {account ? `${account.address.slice(0, 6)}...` : "Yok"})<br />{" "}
-                bu projenin yöneticisi değil.
-              </span>
-            </div>
-          </div>
-        )}
+      {/* Opacity ve pointer-events kısıtlamalarını kaldırdık */}
+      <div className="bg-card-bg border border-border-color rounded-2xl p-8 shadow-2xl max-w-2xl mx-auto relative transition-all duration-500">
+        {/* KİLİT EKRANI (OVERLAY) TAMAMEN KALDIRILDI */}
 
         <h2 className="text-lg font-bold mb-6 text-white flex items-center gap-2 border-b border-white/10 pb-4">
           <UserPlus size={20} className="text-primary-cyan" /> Kullanıcı
@@ -288,18 +213,35 @@ export default function AdminPanel() {
           <div className="flex gap-4 pt-4 border-t border-white/10">
             <button
               onClick={handleWhitelistUser}
-              className="flex-[2] bg-gradient-to-r from-primary-cyan to-emerald-600 hover:to-emerald-500 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+              // Cüzdan bağlı değilse butonu deaktif edelim
+              disabled={!account}
+              className={`flex-[2] py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 ${
+                !account
+                  ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-primary-cyan to-emerald-600 hover:to-emerald-500 text-white"
+              }`}
             >
               <CheckCircle size={18} /> Whitelist Ekle
             </button>
 
             <button
               onClick={handleRemoveWhitelist}
-              className="flex-1 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white transition-all active:scale-95"
+              disabled={!account}
+              className={`flex-1 border rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 ${
+                !account
+                  ? "border-gray-600 text-gray-400 cursor-not-allowed"
+                  : "bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500 hover:text-white"
+              }`}
             >
               <UserMinus size={18} /> Sil
             </button>
           </div>
+
+          {!account && (
+            <p className="text-center text-xs text-yellow-500 mt-2">
+              İşlem yapabilmek için lütfen cüzdan bağlayınız.
+            </p>
+          )}
 
           {statusMsg && (
             <div

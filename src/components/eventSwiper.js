@@ -14,7 +14,7 @@ import { FreeMode, Autoplay } from "swiper/modules";
 // DİKKAT: Artık veriyi dışarıdan 'events' prop'u olarak alıyoruz.
 export default function EventSwiper({ events }) {
   return (
-    <div className="w-full py-4">
+    <div className="w-full py-4 ">
       <Swiper
         modules={[FreeMode, Autoplay]}
         spaceBetween={15}

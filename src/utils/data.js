@@ -109,7 +109,7 @@ export const EVENTS = [
     description:
       "Şehrin en iyi alternatif rock grupları ve elektronik müzik prodüktörleri aynı sahnede. Işık şovları, sanat enstalasyonları ve unutulmaz bir müzik deneyimi sizi bekliyor.",
     image:
-      "https://images.unsplash.com/photo-1459749411177-0473ef7161cf?auto=format&fit=crop&q=80&w=1000",
+      "https://images.unsplash.com/photo-1761839259484-4741afbbdcbf?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     attendees: 120,
     capacity: 500,
     price: "₺450",

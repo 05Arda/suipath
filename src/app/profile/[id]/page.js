@@ -101,7 +101,7 @@ export default function ProfilePage({
   );
 
   return (
-    <div className="min-h-screen bg-deep-bg p-4 sm:p-12 pb-32">
+    <div className="min-h-screen bg-deep-bg/50 p-4 sm:p-12 pb-32">
       {/* --- PROFILE INFO --- */}
       <div className="flex flex-col items-center mt-6 px-4">
         <div className="relative">

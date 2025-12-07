@@ -16,14 +16,20 @@ import "@mysten/dapp-kit/dist/index.css";
 // --- Bileşen Importları ---
 import Footer from "@/components/footer";
 import Header from "@/components/header";
+import GloomyBackground from "@/components/background";
+
 import HomePage from "@/components/main";
 import MapPage from "@/components/map";
 import ProfilePage from "@/app/profile/[id]/page";
 import CalendarPage from "@/components/calendar";
+
 import Events from "@/components/events";
 import NFTGallery from "@/components/nftGallery";
+
 import WalrusPage from "@/components/walrus";
+import Test from "@/components/WalrusUploader";
 import AdminPanel from "@/components/adminPanel";
+
 import { EVENTS, NFTS, MOCK_USER } from "@/utils/data";
 
 // --- SUI CONFIG ---
@@ -69,7 +75,7 @@ function MainContent() {
       calendar: <CalendarPage />,
       user: userComponent,
       map: <MapPage />,
-      walrus: <WalrusPage />,
+      walrus: <Test />,
       admin: <AdminPanel />,
 
       recommendedEvents: <Events events={EVENTS} filterTag={"recommended"} />,
@@ -110,7 +116,7 @@ function MainContent() {
   };
 
   return (
-    <div className="min-h-screen flex w-full flex-col bg-gradient-to-tr from-deep-bg from-[20%] to-primary-blue font-sans">
+    <div className="min-h-screen flex w-full flex-col to-primary-blue font-sans">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Geçici Test Navigasyonu */}
@@ -138,8 +144,11 @@ function MainContent() {
         </button>
       </div>
 
-      <main className="flex-1 w-full h-full flex flex-col items-center sm:items-start">
+      <main className="flex-1 w-full h-full flex flex-col items-center sm:items-start bg-transparent relative z-0">
+        <div className="fixed top-0 left-0 w-full h-full bg-deep-bg/60 backdrop-blur-xs" />
+
         {renderContent()}
+        <GloomyBackground />
       </main>
 
       <Footer activeTab={activeTab} onTabChange={setActiveTab} />
