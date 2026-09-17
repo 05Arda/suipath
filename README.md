@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="public/tracelogo.svg" alt="TRACE Logo" width="120" height="120" />
+  <img src="public/tracelogo.svg" alt="TRACE Protocol Logo" width="120" height="120" />
 
   # TRACE
   ### The Decentralized Event Orchestration & Proof-of-Presence Protocol on Sui
@@ -11,22 +11,22 @@
   [![PostgreSQL](https://img.shields.io/badge/Database-Neon_Serverless_PG-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech/)
 
   <p align="center">
-    <strong>Fiziksel ve dijital etkinlik deneyimlerini Sui blokzincirinin yüksek işlem hızı ve Walrus merkeziyetsiz depolama katmanıyla buluşturan yeni nesil katılım kanıtı ekosistemi.</strong>
+    <strong>Bridging physical and digital event experiences with sub-second finality on Sui and immutable, decentralized storage via Walrus.</strong>
   </p>
 
 </div>
 
 ---
 
-## 🌐 Vizyon ve Genel Bakış
+## 🌐 Vision & Executive Overview
 
-**TRACE**, Web3 ekosistemindeki dağınık etkinlik yönetimini ve yüzeysel katılım metriklerini kökten dönüştürmek amacıyla tasarlanmış kurumsal düzeyde bir **Proof-of-Attendance (PoA)** ve **Etkinlik Orkestrasyon Altyapısıdır**.
+**TRACE** is an enterprise-grade **Proof-of-Attendance (PoA)** and **Event Orchestration Protocol** engineered to fundamentally redefine how human coordination, community engagement, and digital presence are captured on-chain.
 
-Geleneksel etkinlik biletleme ve sadakat sistemleri; şeffaf olmayan veri tabanlarına, aracı bilet tekellerine ve kalıcı olmayan dijital kanıtlara mahkumdur. TRACE, bu paradigmayı yıkarak her fiziksel ve sanal etkileşimi **Sui Network** üzerinde kriptografik olarak doğrulanabilir, **Walrus** üzerinde sansürlenemez biçimde saklanan ve dinamik katmanlı (tiered) NFT'lerle ödüllendirilen yaşayan bir dijital mirasa dönüştürür.
+Traditional event ticketing and loyalty frameworks are constrained by centralized databases, fragmented ecosystems, predatory intermediaries, and perishable proof-of-participation. TRACE dismantles these bottlenecks by transforming every physical and virtual interaction into an immutable, cryptographically verifiable digital legacy—executed on **Sui Network**, permanently preserved on **Walrus Protocol**, and incentivized through dynamic, tiered reputation primitives.
 
 ---
 
-## ⚡ Temel Mimari Sütunlar
+## ⚡ Core Architectural Pillars
 
 ```
                                ┌─────────────────────────┐
@@ -43,87 +43,89 @@ Geleneksel etkinlik biletleme ve sadakat sistemleri; şeffaf olmayan veri tabanl
          └─────────────────────┘ └─────────────────────┘ └─────────────────────┘
 ```
 
-### 1. Sui Odaklı Yüksek Hızlı Mutabakat
-* `@mysten/sui` ve `@mysten/dapp-kit` entegrasyonu sayesinde kullanıcılar tek tıkla Sui cüzdanlarıyla (Sui Wallet, Ethos, Suiet vb.) sisteme dahil olur.
-* Sub-second finality (saniye-altı kesinlik) avantajı, etkinlik kapılarında ve anlık NFT mint süreçlerinde sıfır gecikmeli bir kullanıcı deneyimi sunar.
+### 1. High-Throughput On-Chain Consensus
+* Built on `@mysten/sui` and `@mysten/dapp-kit`, enabling seamless wallet connectivity across Sui ecosystem wallets (Sui Wallet, Ethos, Suiet, etc.).
+* Leverages Sui's object-centric data model and sub-second finality to guarantee zero-latency check-ins and instantaneous NFT minting at scale.
 
-### 2. Walrus Protokolü ile Merkeziyetsiz Veri Koruma
-* Etkinlik afişleri, hatıra rozetleri ve katılım kanıtları üçüncü parti merkezi sunucularda değil; Mysten Labs'in yeni nesil merkeziyetsiz blob depolama ağı **Walrus** üzerinde saklanır.
-* Sunucu taraflı şifreli anahtar türetme altyapısıyla büyük boyutlu dijital varlıklar tek hamlede epoch bazlı merkeziyetsiz depolamaya aktarılır.
+### 2. Decentralized Blob Storage with Walrus
+* Event artwork, digital badges, and cryptographic attendance artifacts are stored completely decentralized via Mysten Labs' next-gen blob protocol, **Walrus**.
+* Features server-side encrypted key derivation pipelines, enabling high-performance media publishing across decentralized epochs without relying on centralized CDNs.
 
-### 3. Dinamik Katmanlı NFT Ekosistemi (Tiered Reputation)
-* Katılımcı sadakati sıradan statik rozetlerle değil; **Bronze, Silver, Gold ve Platinum** seviyelerine ayrılmış dinamik ve transfer edilebilir on-chain itibar belirteçleriyle ödüllendirilir.
+### 3. Tiered Proof-of-Presence (PoA) Primitives
+* Community loyalty is gamified through dynamically tiered digital collectibles (**Bronze, Silver, Gold, Platinum**).
+* Each tier encapsulates verifiable metadata, on-chain properties, and provable exclusivity, serving as decentralized credentials for ecosystem privileges.
 
-### 4. Coğrafi ve Mekânsal Zeka (Spatial Event Intelligence)
-* Leaflet tabanlı dinamik küresel harita motoru, etkinlikleri coğrafi koordinatlarıyla haritalandırır; gerçek zamanlı ülke bazlı filtreleme ve lokasyon doğrulama sağlar.
+### 4. Spatial Event Intelligence (GIS Engine)
+* High-precision geospatial discovery powered by Leaflet and CartoDB Dark cartography.
+* Enables global coordinate mapping, country-level filtering, and location-based discovery with real-time attendee insights.
 
-### 5. Sıvı ve Fütüristik Tasarım Dili
-* Sui'nin akışkan okyanus kimliğinden ilham alan **Deep Cyan & Obsidian** renk paleti, Tailwind CSS v4 ve Three.js görsel efektleriyle birleşerek modern Web3 tasarım standartlarını yeniden tanımlar.
+### 5. Fluid Oceanic Aesthetic & Modern UI
+* An immersive design system inspired by Sui’s oceanic identity (**Deep Cyan & Obsidian** `#011820`), engineered using Tailwind CSS v4 native tokens, Three.js spatial canvases, and Framer Motion micro-interactions.
 
 ---
 
-## 🛠️ Teknoloji Yığını
+## 🛠️ Technology Matrix
 
-| Katman | Teknoloji | Açıklama |
+| Layer | Technology | Architectural Role |
 | :--- | :--- | :--- |
-| **Çekirdek Çatı** | `Next.js 16.0.7` | Turbopack motoru ve React 19 ile optimize edilmiş App Router mimarisi |
-| **Blokzincir Katmanı** | `@mysten/sui` & `@mysten/dapp-kit` | Sui testnet/mainnet RPC bağlantısı, akıllı sözleşme tetikleyicileri |
-| **Merkeziyetsiz Depolama**| `@mysten/walrus` | Epoch tabanlı, yüksek verimli merkeziyetsiz dosya ve görsel depolama |
-| **Veritabanı & ORM** | `Neon Database Serverless` | PostgreSQL uyumlu, anlık ölçeklenen sunucusuz veritabanı altyapısı |
-| **Stil & Tasarım** | `Tailwind CSS v4` | `@theme` token mimarisi, OKLCH renk uzayı ve mikro animasyonlar |
-| **3D & Etkileşim** | `Three.js` & `Framer Motion` | GPU hızlandırmalı görsel kompozisyonlar ve akıcı geçiş efektleri |
-| **Harita & CBS** | `React-Leaflet` & CartoDB Dark | Küresel etkinlik koordinasyon ve keşif arayüzü |
+| **Core Framework** | `Next.js 16.0.7` | Turbopack-powered App Router architecture with React 19 concurrent features |
+| **Blockchain Layer** | `@mysten/sui` & `@mysten/dapp-kit` | Sui testnet/mainnet RPC clients, transaction builders, on-chain execution |
+| **Decentralized Storage**| `@mysten/walrus` | Epoch-based, highly efficient decentralized blob and media storage |
+| **Database Engine** | `Neon Serverless PostgreSQL` | High-concurrency, autoscaling serverless relational data store |
+| **Design & Tokens** | `Tailwind CSS v4` | Native `@theme` tokens, OKLCH color space, adaptive dark theme infrastructure |
+| **3D & Visuals** | `Three.js` & `Framer Motion` | GPU-accelerated spatial rendering, fluid micro-interactions |
+| **Geospatial & GIS** | `React-Leaflet` & CartoDB Dark | Global event mapping and country-level territorial filtering |
 
 ---
 
-## 🚀 Başlarken
+## 🚀 Getting Started
 
-### Gereksinimler
-- **Node.js**: `v20.x` veya üzeri (`v22`+ önerilir)
-- **Paket Yöneticisi**: `npm` veya `pnpm`
-- **Sui Cüzdanı**: Sui Wallet / Suiet / Ethos (Testnet modunda)
+### Prerequisites
+- **Node.js**: `v20.x` or higher (`v22`+ recommended)
+- **Package Manager**: `npm`, `pnpm`, or `bun`
+- **Sui Wallet**: Sui Wallet / Ethos / Suiet (configured to Testnet)
 
-### Kurulum
+### Installation
 
-1. Depoyu klonlayın:
+1. Clone the repository:
    ```bash
    git clone https://github.com/05Arda/suipath.git
    cd suipath
    ```
 
-2. Bağımlılıkları yükleyin:
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Çevre değişkenlerini yapılandırın:
-   Proje kök dizininde `.env.local` dosyasını oluşturun (referans için `.env.example` dosyasını kullanabilirsiniz):
+3. Configure environment variables:
+   Create a `.env.local` file in the root directory (refer to [`.env.example`](.env.example)):
    ```env
-   # Neon PostgreSQL Veritabanı Bağlantı Dizgisi
+   # Neon Serverless PostgreSQL Connection String
    DATABASE_URL="postgresql://user:password@endpoint.neon.tech/neondb?sslmode=require"
 
-   # Walrus Blob İmzalama için Sui Mnemonic (12 veya 24 kelime)
+   # Sui Mnemonic for Walrus Server Actions (12 or 24 words)
    MNEMONIC="word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12"
    ```
 
-4. Geliştirme sunucusunu başlatın:
+4. Launch the development server:
    ```bash
    npm run dev
    ```
-   Uygulama `http://localhost:3000` adresinde kullanıma hazır olacaktır.
+   Navigate to `http://localhost:3000` in your browser.
 
 ---
 
-## 🗺️ Yol Haritası ve Gelecek Vizyonu
+## 🗺️ Protocol Roadmap & Future Frontiers
 
-- [x] Sui Dapp-Kit ile cüzdan entegrasyonu ve oturum mimarisi
-- [x] Walrus Protocol entegrasyonu ile merkeziyetsiz medya dağıtımı
-- [x] Coğrafi lokasyon tabanlı interaktif küresel etkinlik haritası
-- [x] Dinamik seviyeli (Bronze-Platinum) NFT galeri arayüzü
-- [ ] zkLogin entegrasyonu ile sıfır bilgi kanıtlı Google/Apple ile cüzdansız giriş
-- [ ] QR Tabanlı On-Chain Mekansal Check-in ve Soulbound Token (SBT) ihracı
-- [ ] Etkinlik organizatörleri için akıllı biletleme ve gelir paylaşım kontratları
-- [ ] Sui Kiosk entegrasyonu ile ikincil bilet ve NFT pazar yeri mekaniği
+- [x] Full `@mysten/dapp-kit` wallet integration and state management
+- [x] Decentralized media storage pipeline via Walrus Protocol
+- [x] Interactive geospatial discovery engine with country filtering
+- [x] Dynamic tiered reputation badges (Bronze to Platinum)
+- [ ] **zkLogin Integration:** Zero-Knowledge social authentication (Google, Apple, Twitch) for frictionless onboarding
+- [ ] **On-Chain Spatial Check-ins:** Geofenced QR verification with non-transferable Soulbound Tokens (SBT)
+- [ ] **Programmable Smart Ticketing:** Automated revenue splits and programmable access gating via Sui Move modules
+- [ ] **Sui Kiosk Marketplace:** Native secondary trading infrastructure with enforce-ready creator royalties
 
 ---
 
