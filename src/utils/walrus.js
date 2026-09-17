@@ -21,10 +21,16 @@ const walrusClient = new WalrusClient({
   suiClient,
 });
 
-// Keypair (Sunucu tarafında Environment Variable'dan okunur)
-const keypair = Ed25519Keypair.deriveKeypair(
-  process.env.MNEMONIC || "mmonic" // .env.local dosyasına MNEMONIC eklemeyi unutmayın
-);
+// Keypair fonksiyonu: Dosya yüklenmek istendiğinde çağrılır (Lazy loading)
+function getKeypair() {
+  const mnemonic = process.env.MNEMONIC;
+  if (!mnemonic || mnemonic.trim() === "" || mnemonic === "mmonic") {
+    throw new Error(
+      "MNEMONIC çevre değişkeni (Environment Variable) eksik veya geçersiz. Walrus'a yükleme yapabilmek için lütfen .env.local dosyasına geçerli bir 12/24 kelimelik MNEMONIC ekleyin."
+    );
+  }
+  return Ed25519Keypair.deriveKeypair(mnemonic.trim());
+}
 
 /**
  * Walrus SDK kullanarak dosya yükler (Server Action).
@@ -50,6 +56,7 @@ export async function uploadImageToWalrus(formData) {
     console.log(`   File size: ${(file.size / 1024).toFixed(2)} KB`);
 
     // 2. SDK ile yükle
+    const keypair = getKeypair();
     const { blobId, blobObject } = await walrusClient.writeBlob({
       blob: uint8Array,
       deletable: true,
@@ -85,5 +92,5 @@ export async function uploadImageToWalrus(formData) {
  * Helper: Blob URL oluşturucu
  */
 export async function getWalrusUrl(blobId) {
-  return `${AGGREGATOR_URL}/v1/${blobId}`;
+  return `${WALRUS_AGGREGATOR_URL}/v1/${blobId}`;
 }

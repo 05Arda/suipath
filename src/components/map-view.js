@@ -69,7 +69,20 @@
         "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
       )
         .then((res) => res.json())
-        .then((data) => setGeoData(data))
+        .then((data) => {
+          if (data && Array.isArray(data.features)) {
+            data.features = data.features.map((feature, idx) => {
+              if (feature.id === "-99") {
+                return {
+                  ...feature,
+                  id: `-99_${feature.properties?.name?.replace(/\s+/g, "_") || idx}`,
+                };
+              }
+              return feature;
+            });
+          }
+          setGeoData(data);
+        })
         .catch((err) => console.error("Harita verisi yüklenemedi:", err));
     }, []);
 
@@ -183,13 +196,13 @@
               Tüm Dünya
             </option>
             {geoData &&
-              geoData.features
+              [...geoData.features]
                 .sort((a, b) =>
                   a.properties.name.localeCompare(b.properties.name)
                 )
-                .map((feature) => (
+                .map((feature, index) => (
                   <option
-                    key={feature.id}
+                    key={`${feature.id}-${index}`}
                     value={feature.id}
                     className="bg-slate-800"
                   >
