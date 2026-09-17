@@ -83,7 +83,7 @@
           }
           setGeoData(data);
         })
-        .catch((err) => console.error("Harita verisi yüklenemedi:", err));
+        .catch((err) => console.error("Failed to load map data:", err));
     }, []);
 
     const selectedFeature = useMemo(() => {
@@ -166,7 +166,7 @@
                       className="flex items-center justify-center gap-1 w-full bg-primary-cyan rounded hover:bg-ocean-dark transition-colors"
                     >
                       <p className="text-white text-xs font-bold">
-                        Detayları Gör
+                        View Details
                       </p>
                       <ChevronRight className="text-white" size={20} />
                     </Link>
@@ -183,7 +183,7 @@
           <div className="flex items-center gap-2 mb-2 text-white/80">
             <Filter size={16} className="text-primary-cyan" />
             <span className="text-xs font-bold uppercase tracking-wider">
-              Ülke Filtrele
+              Filter by Country
             </span>
           </div>
 
@@ -193,7 +193,7 @@
             className="w-full bg-black/40 border border-white/20 text-white text-sm rounded-lg p-2.5 outline-none focus:border-primary-cyan focus:ring-1 focus:ring-primary-cyan transition-all appearance-none cursor-pointer"
           >
             <option value="" className="bg-slate-800">
-              Tüm Dünya
+              Worldwide
             </option>
             {geoData &&
               [...geoData.features]

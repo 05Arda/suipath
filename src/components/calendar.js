@@ -302,7 +302,7 @@ export default function CalendarView({ events = [] }) {
                       </p>
                       <div className="flex items-center gap-1 text-[10px] text-text-muted mt-0.5">
                         <Clock size={10} />
-                        <span>{ev.time || "Tüm Gün"}</span>
+                        <span>{ev.time || "All Day"}</span>
                       </div>
                     </div>
                   </div>

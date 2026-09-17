@@ -61,7 +61,7 @@ export default function EventDetailPage() {
           setAttendeeCount(data.attendees || 0);
         }
       } catch (error) {
-        console.error("Etkinlik yüklenemedi:", error);
+        console.error("Failed to load event:", error);
       } finally {
         setLoading(false);
       }
@@ -89,7 +89,7 @@ export default function EventDetailPage() {
         setIsJoined(status.hasJoined);
         setIsFavorite(status.isFavorite);
       } catch (error) {
-        console.error("Kullanıcı durumu alınamadı:", error);
+        console.error("Failed to fetch user status:", error);
       }
     };
 
@@ -98,7 +98,7 @@ export default function EventDetailPage() {
 
   // --- ACTIONS (Aynı) ---
   const handleToggleFavorite = async () => {
-    if (!account) return alert("Lütfen önce cüzdanınızı bağlayın!");
+    if (!account) return alert("Please connect your wallet first!");
     if (actionLoading) return;
 
     const previousState = isFavorite;
@@ -109,13 +109,13 @@ export default function EventDetailPage() {
 
     if (!result.success) {
       setIsFavorite(previousState); // Hata olursa geri al
-      alert("Hata: " + result.error);
+      alert("Error: " + result.error);
     }
     setActionLoading(false);
   };
 
   const handleJoinToggle = async () => {
-    if (!account) return alert("Lütfen önce cüzdanınızı bağlayın!");
+    if (!account) return alert("Please connect your wallet first!");
     if (actionLoading) return;
 
     setActionLoading(true);
@@ -125,7 +125,7 @@ export default function EventDetailPage() {
       setIsJoined(result.isJoined);
       setAttendeeCount(result.newCount);
     } else {
-      alert("Hata: " + result.error);
+      alert("Error: " + result.error);
     }
     setActionLoading(false);
   };
@@ -148,7 +148,7 @@ export default function EventDetailPage() {
   if (!event)
     return (
       <div className="min-h-screen bg-deep-bg text-white flex items-center justify-center">
-        Etkinlik bulunamadı.
+        Event not found.
       </div>
     );
 
@@ -167,7 +167,7 @@ export default function EventDetailPage() {
         }`}
       >
         <Check size={18} />
-        <span className="font-medium text-sm">Link panoya kopyalandı!</span>
+        <span className="font-medium text-sm">Link copied to clipboard!</span>
       </div>
 
       <div className="relative w-full h-[40vh] lg:h-[50vh]">
@@ -230,9 +230,9 @@ export default function EventDetailPage() {
               <div className="flex items-center gap-2 text-text-muted text-sm lg:text-base">
                 <UserCircle size={18} />
                 <span>
-                  Organizatör:{" "}
+                  Organizer:{" "}
                   <span className="text-text-light font-medium">
-                    {event.organizer || "Bilinmiyor"}
+                    {event.organizer || "Unknown"}
                   </span>
                 </span>
               </div>
@@ -240,10 +240,10 @@ export default function EventDetailPage() {
 
             <div className="bg-card-bg border border-border-color rounded-3xl p-6 lg:p-8 shadow-lg">
               <h3 className="text-xl font-bold text-text-primary mb-4">
-                Etkinlik Hakkında
+                About Event
               </h3>
               <p className="text-text-light leading-relaxed mb-8">
-                {event.description || "Açıklama yok."}
+                {event.description || "No description available."}
               </p>
               <div className="flex items-start gap-4 p-4 bg-deep-bg/50 rounded-2xl border border-border-color">
                 <div className="bg-primary-cyan/20 p-3 rounded-full text-primary-cyan">
@@ -253,7 +253,7 @@ export default function EventDetailPage() {
                   <p className="text-text-primary font-medium">
                     {event.location}
                   </p>
-                  <p className="text-text-muted text-sm mt-1">Türkiye</p>
+                  <p className="text-text-muted text-sm mt-1">Turkey</p>
                 </div>
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function EventDetailPage() {
           <div className="lg:w-[350px] flex-shrink-0">
             <div className="sticky top-24 bg-card-bg border border-border-color rounded-3xl p-6 shadow-xl">
               <h3 className="text-lg font-bold text-text-primary mb-6 border-b border-border-color pb-4">
-                Etkinlik Detayları
+                Event Details
               </h3>
               <div className="space-y-5">
                 <div className="flex items-center gap-4">
@@ -270,7 +270,7 @@ export default function EventDetailPage() {
                     <Calendar size={20} />
                   </div>
                   <div>
-                    <p className="text-text-muted text-xs">Tarih</p>
+                    <p className="text-text-muted text-xs">Date</p>
                     <p className="text-text-primary font-medium">
                       {event.date}
                     </p>
@@ -281,7 +281,7 @@ export default function EventDetailPage() {
                     <Clock size={20} />
                   </div>
                   <div>
-                    <p className="text-text-muted text-xs">Saat</p>
+                    <p className="text-text-muted text-xs">Time</p>
                     <p className="text-text-primary font-medium">
                       {event.time}
                     </p>
@@ -289,7 +289,7 @@ export default function EventDetailPage() {
                 </div>
 
                 <div className="w-full">
-                  <p className="text-text-muted text-xs mb-1">Doluluk</p>
+                  <p className="text-text-muted text-xs mb-1">Occupancy</p>
                   <div className="w-full h-1.5 bg-deep-bg rounded-full overflow-hidden mb-1">
                     <div
                       className="h-full bg-primary-cyan rounded-full transition-all duration-700 ease-out"
@@ -298,10 +298,10 @@ export default function EventDetailPage() {
                   </div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-sm font-medium text-text-light">
-                      {attendeeCount} Kişi katılıyor
+                      {attendeeCount} Attendees
                     </span>
                     <span className="text-xs text-primary-cyan font-bold">
-                      %{occupancy}
+                      {occupancy}%
                     </span>
                   </div>
 
@@ -334,7 +334,7 @@ export default function EventDetailPage() {
 
               <div className="mt-8 pt-6 border-t border-border-color">
                 <div className="flex justify-between items-center mb-6">
-                  <span className="text-text-muted text-sm">Giriş Ücreti</span>
+                  <span className="text-text-muted text-sm">Ticket Price</span>
                   <span className="text-2xl font-bold text-white">
                     {event.price}
                   </span>
@@ -357,10 +357,10 @@ export default function EventDetailPage() {
                 >
                   {/* Buton Metni */}
                   {actionLoading
-                    ? "İşleniyor..."
+                    ? "Processing..."
                     : isJoined
-                    ? "Katıldınız" // DÜZELTİLDİ: Açıklayıcı metin
-                    : "Hemen Katıl"}
+                    ? "Joined"
+                    : "Join Now"}
                 </button>
               </div>
             </div>

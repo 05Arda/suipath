@@ -61,7 +61,7 @@ export default function NFTDetailPage({
           setError(true);
         }
       } catch (err) {
-        console.error("NFT yüklenemedi:", err);
+        console.error("Failed to load NFT:", err);
         setError(true);
       } finally {
         setLoading(false);
@@ -78,7 +78,7 @@ export default function NFTDetailPage({
         <div className="flex flex-col items-center gap-4">
           <Loader2 size={48} className="text-primary-cyan animate-spin" />
           <p className="text-white text-sm font-medium">
-            NFT Verisi Çekiliyor...
+            Loading NFT data...
           </p>
         </div>
       </div>
@@ -89,9 +89,9 @@ export default function NFTDetailPage({
   if (error || !nft) {
     return (
       <div className="min-h-screen bg-deep-bg py-24 px-10 flex flex-col items-center justify-center text-center fixed inset-0 z-50">
-        <h1 className="text-3xl font-bold text-white mb-4">NFT Bulunamadı</h1>
+        <h1 className="text-3xl font-bold text-white mb-4">NFT Not Found</h1>
         <p className="text-text-muted">
-          Aradığınız NFT veritabanında mevcut değil veya ID hatalı.
+          The NFT you are looking for does not exist or the ID is invalid.
         </p>
         <button
           onClick={() => {
@@ -100,7 +100,7 @@ export default function NFTDetailPage({
           }}
           className="mt-6 px-6 py-3 bg-primary-cyan text-white rounded-xl font-bold hover:opacity-90 transition-opacity"
         >
-          <X size={16} className="inline mr-2" /> Kapat
+          <X size={16} className="inline mr-2" /> Close
         </button>
       </div>
     );

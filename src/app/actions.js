@@ -105,7 +105,7 @@ export async function getEventById(id) {
         month: "short",
         year: "numeric",
       }),
-      time: event.start_time ? event.start_time.slice(0, 5) : "Tüm Gün",
+      time: event.start_time ? event.start_time.slice(0, 5) : "All Day",
       tags: event.tags || [],
     };
   } finally {
@@ -212,7 +212,7 @@ export async function toggleEventFavorite(walletAddress, eventId) {
       return { success: true, isFavorite: true };
     }
   } catch (error) {
-    console.error("Favori hatası:", error);
+    console.error("Favorite action error:", error);
     return { success: false, error: error.message };
   } finally {
     client.release();
@@ -243,7 +243,7 @@ export async function toggleEventJoin(walletAddress, eventId) {
         success: false,
         isJoined: true, // Durum hala katıldı
         newCount: await getAttendeeCount(eventId), // Güncel katılımcı sayısını al (Opsiyonel)
-        error: "Bu etkinlikten geri çekilme (ayrılma) izniniz yok.",
+        error: "You cannot leave this event once joined.",
       };
       // Not: getAttendeeCount, Events tablosundan sadece sayıyı çeken küçük bir fonk. olabilir.
       // Ya da hatasız çalışması için client.query ile direkt çekebiliriz:
@@ -267,7 +267,7 @@ export async function toggleEventJoin(walletAddress, eventId) {
     return { success: true, isJoined, newCount };
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("Katılma işlemi hatası:", error);
+    console.error("Join action error:", error);
     return { success: false, error: error.message };
   } finally {
     client.release();
@@ -301,7 +301,7 @@ export async function getUserEventStatus(walletAddress, eventId) {
 
 // --- 9. YENİ KULLANICI OLUŞTURMA (Register) ---
 export async function createUser(walletAddress) {
-  if (!walletAddress) return { success: false, error: "Cüzdan adresi yok" };
+  if (!walletAddress) return { success: false, error: "Wallet address is required" };
 
   const client = await pool.connect();
   try {
@@ -312,7 +312,7 @@ export async function createUser(walletAddress) {
     );
 
     if (checkRes.rows.length > 0) {
-      return { success: true, created: false, message: "Kullanıcı zaten var" };
+      return { success: true, created: false, message: "User already exists" };
     }
 
     // Yoksa varsayılan bilgilerle oluştur
@@ -334,7 +334,7 @@ export async function createUser(walletAddress) {
 
     return { success: true, created: true };
   } catch (error) {
-    console.error("Kullanıcı oluşturma hatası:", error);
+    console.error("User creation error:", error);
     return { success: false, error: error.message };
   } finally {
     client.release();

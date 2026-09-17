@@ -8,7 +8,7 @@ export default function WalrusUploader() {
   const [uploading, setUploading] = useState(false);
 
   const handleUpload = async () => {
-    if (!file) return alert("Lütfen bir dosya seçin!");
+    if (!file) return alert("Please select a file!");
 
     setUploading(true);
 
@@ -27,14 +27,14 @@ export default function WalrusUploader() {
       const result = await uploadImageToWalrus(formData);
 
       if (result.success) {
-        console.log("Yüklendi:", result);
-        alert(`Başarılı! Blob ID: ${result.blobId}`);
+        console.log("Uploaded:", result);
+        alert(`Success! Blob ID: ${result.blobId}`);
       } else {
-        alert("Hata: " + result.error);
+        alert("Error: " + result.error);
       }
     } catch (err) {
       console.error(err);
-      alert("Beklenmedik bir hata oluştu.");
+      alert("An unexpected error occurred.");
     } finally {
       setUploading(false);
     }
@@ -42,7 +42,7 @@ export default function WalrusUploader() {
 
   return (
     <div className="mx-auto mt-[12.5%] p-4 bg-gray-900 rounded-lg border border-gray-700 z-10">
-      <h3 className="text-white mb-4">Walrus'a Yükle (Server Action)</h3>
+      <h3 className="text-white mb-4">Upload to Walrus (Server Action)</h3>
 
       <input
         type="file"
@@ -64,7 +64,7 @@ export default function WalrusUploader() {
             : "bg-cyan-600 hover:bg-cyan-500"
         }`}
       >
-        {uploading ? "Yükleniyor..." : "Yükle"}
+        {uploading ? "Uploading..." : "Upload"}
       </button>
     </div>
   );

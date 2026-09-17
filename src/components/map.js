@@ -12,7 +12,7 @@ const MapView = dynamic(() => import("@/components/map-view"), {
       style={{ backgroundColor: "#023338" }}
     >
       <Loader2 size={48} className="animate-spin mb-4" />
-      <p className="text-sm font-medium animate-pulse">Harita Yükleniyor...</p>
+      <p className="text-sm font-medium animate-pulse">Loading Map...</p>
     </div>
   ),
   ssr: false,

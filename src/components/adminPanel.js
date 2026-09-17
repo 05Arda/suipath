@@ -46,7 +46,7 @@ export default function AdminPanel() {
   // --- ACTIONS ---
   const handleWhitelistUser = () => {
     // Admin kontrolünü kaldırdık, sadece cüzdan bağlı mı ona bakıyoruz
-    if (!account) return alert("Lütfen cüzdan bağlayın!");
+    if (!account) return alert("Please connect your wallet!");
 
     const tx = new Transaction();
     tx.moveCall({
@@ -65,14 +65,14 @@ export default function AdminPanel() {
     signAndExecute(
       { transaction: tx },
       {
-        onSuccess: () => setStatusMsg("✅ Kullanıcı whitelist'e eklendi!"),
-        onError: (err) => setStatusMsg("❌ Hata: " + err.message),
+        onSuccess: () => setStatusMsg("✅ User added to whitelist!"),
+        onError: (err) => setStatusMsg("❌ Error: " + err.message),
       }
     );
   };
 
   const handleRemoveWhitelist = () => {
-    if (!account) return alert("Lütfen cüzdan bağlayın!");
+    if (!account) return alert("Please connect your wallet!");
 
     const tx = new Transaction();
     tx.moveCall({
@@ -87,8 +87,8 @@ export default function AdminPanel() {
     signAndExecute(
       { transaction: tx },
       {
-        onSuccess: () => setStatusMsg("✅ Kullanıcı silindi."),
-        onError: (err) => setStatusMsg("❌ Hata: " + err.message),
+        onSuccess: () => setStatusMsg("✅ User removed from whitelist."),
+        onError: (err) => setStatusMsg("❌ Error: " + err.message),
       }
     );
   };
@@ -101,7 +101,7 @@ export default function AdminPanel() {
         <div>
           <h1 className="text-3xl font-bold text-white">Public Dashboard</h1>
           <p className="text-xs text-text-muted">
-            Admin yetkisi gerekmez (Test Modu)
+            Admin privileges not required (Test Mode)
           </p>
         </div>
       </div>
@@ -160,14 +160,13 @@ export default function AdminPanel() {
         {/* KİLİT EKRANI (OVERLAY) TAMAMEN KALDIRILDI */}
 
         <h2 className="text-lg font-bold mb-6 text-white flex items-center gap-2 border-b border-white/10 pb-4">
-          <UserPlus size={20} className="text-primary-cyan" /> Kullanıcı
-          Yönetimi
+          <UserPlus size={20} className="text-primary-cyan" /> User Management
         </h2>
 
         <div className="space-y-6">
           <div>
             <label className="block text-xs font-bold text-text-muted mb-2">
-              Hedef Cüzdan Adresi
+              Target Wallet Address
             </label>
             <div className="relative">
               <Search
@@ -186,7 +185,7 @@ export default function AdminPanel() {
 
           <div>
             <label className="block text-xs font-bold text-text-muted mb-2">
-              Yetki Seviyesi (Tier)
+              Permission Level (Tier)
             </label>
             <div className="grid grid-cols-4 gap-3">
               {[
@@ -221,7 +220,7 @@ export default function AdminPanel() {
                   : "bg-gradient-to-r from-primary-cyan to-emerald-600 hover:to-emerald-500 text-white"
               }`}
             >
-              <CheckCircle size={18} /> Whitelist Ekle
+              <CheckCircle size={18} /> Add to Whitelist
             </button>
 
             <button
@@ -233,20 +232,20 @@ export default function AdminPanel() {
                   : "bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500 hover:text-white"
               }`}
             >
-              <UserMinus size={18} /> Sil
+              <UserMinus size={18} /> Remove
             </button>
           </div>
 
           {!account && (
             <p className="text-center text-xs text-yellow-500 mt-2">
-              İşlem yapabilmek için lütfen cüzdan bağlayınız.
+              Please connect your wallet to perform transactions.
             </p>
           )}
 
           {statusMsg && (
             <div
               className={`mt-4 p-4 rounded-xl text-sm font-medium text-center border animate-in fade-in slide-in-from-top-2 ${
-                statusMsg.includes("Hata")
+                statusMsg.includes("Error") || statusMsg.includes("Hata")
                   ? "bg-red-500/10 border-red-500/20 text-red-400"
                   : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
               }`}

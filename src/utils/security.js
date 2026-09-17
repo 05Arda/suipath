@@ -8,7 +8,7 @@ function getCryptoSubtle() {
     !window.crypto.subtle
   ) {
     throw new Error(
-      "Şifreleme API'si kullanılamıyor. Lütfen 'localhost' veya 'HTTPS' üzerinden bağlandığınızdan emin olun."
+      "Cryptography API is not available. Please ensure you are connected via 'localhost' or 'HTTPS'."
     );
   }
   return window.crypto.subtle;
@@ -81,9 +81,9 @@ export async function unsealData(jsonString, password) {
 
     return new TextDecoder().decode(decrypted);
   } catch (e) {
-    console.error("Şifre çözme detayı:", e);
+    console.error("Decryption error details:", e);
     throw new Error(
-      "Şifre çözülemedi! (HTTPS/Localhost kullandığınızdan emin misiniz?)"
+      "Failed to decrypt data! (Make sure you are using HTTPS/Localhost)"
     );
   }
 }

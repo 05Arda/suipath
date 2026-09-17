@@ -139,12 +139,12 @@ export default function Events({ events = [], filterTag = null }) {
                     <div className="mb-3">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-[10px] text-text-muted">
-                          Doluluk
+                          Occupancy
                         </span>
                         <span
                           className={`text-[10px] font-bold ${statusColor}`}
                         >
-                          %{occupancy}
+                          {occupancy}%
                         </span>
                       </div>
                       <div className="w-full h-1.5 bg-ocean-dark rounded-full overflow-hidden">
@@ -175,13 +175,13 @@ export default function Events({ events = [], filterTag = null }) {
       ) : (
         <div className="flex flex-col items-center justify-center py-20 opacity-50">
           <p className="text-white text-xl">
-            Aradığınız kriterlere uygun etkinlik bulunamadı.
+            No events found matching your criteria.
           </p>
           <button
             onClick={() => setSelectedCategory("All")}
             className="text-white text-sm underline mt-2 cursor-pointer transition-colors"
           >
-            Tüm Etkinlikleri Göster
+            Show All Events
           </button>
         </div>
       )}

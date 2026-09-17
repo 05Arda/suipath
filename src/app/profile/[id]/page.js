@@ -143,21 +143,21 @@ export default function ProfilePage({
             <span className="block text-xl font-bold text-white">
               {displayUser.followers}
             </span>
-            <span className="text-xs text-text-muted">Takipçi</span>
+            <span className="text-xs text-text-muted">Followers</span>
           </div>
           <div className="w-px h-8 bg-white/10" />
           <div className="text-center">
             <span className="block text-xl font-bold text-white">
               {displayUser.following}
             </span>
-            <span className="text-xs text-text-muted">Takip</span>
+            <span className="text-xs text-text-muted">Following</span>
           </div>
           <div className="w-px h-8 bg-white/10" />
           <div className="text-center">
             <span className="block text-xl font-bold text-white">
               {safeJoinedIds.length}
             </span>
-            <span className="text-xs text-text-muted">Etkinlik</span>
+            <span className="text-xs text-text-muted">Events</span>
           </div>
         </div>
       </div>

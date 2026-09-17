@@ -36,7 +36,7 @@ export default function HomePage({ activeTab, setActiveTab, events = [] }) {
                        text-white placeholder-text-muted focus:outline-none focus:bg-card-bg 
                        focus:border-primary-cyan focus:ring-1 focus:ring-primary-cyan 
                        transition-all shadow-lg backdrop-blur-md relative z-0"
-            placeholder="Etkinlik, konum veya kategori ara..."
+            placeholder="Search events, locations, or categories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -47,7 +47,7 @@ export default function HomePage({ activeTab, setActiveTab, events = [] }) {
 
       {/* --- 1. ANA LİSTE (Arama Sonuçları veya Tümü) --- */}
       <HomeSwiper
-        Title={searchQuery ? "Arama Sonuçları" : "Tüm Etkinlikler"}
+        Title={searchQuery ? "Search Results" : "All Events"}
         swiperFilter={null}
         searchQuery={searchQuery}
         activeTab={activeTab}
@@ -59,7 +59,7 @@ export default function HomePage({ activeTab, setActiveTab, events = [] }) {
       {!searchQuery && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 z-10">
           <HomeSwiper
-            Title={"Sizin İçin Önerilenler"}
+            Title={"Recommended For You"}
             swiperFilter={"recommended"}
             searchQuery={searchQuery}
             activeTab={activeTab}
@@ -72,9 +72,9 @@ export default function HomePage({ activeTab, setActiveTab, events = [] }) {
       {/* --- SONUÇ BULUNAMADI MESAJI --- */}
       {searchQuery && filteredEvents.length === 0 && (
         <div className="text-center text-text-muted mt-10 p-8 bg-card-bg/30 rounded-2xl border border-white/5">
-          <p className="text-lg text-white font-bold mb-2">Sonuç Bulunamadı</p>
+          <p className="text-lg text-white font-bold mb-2">No Results Found</p>
           <p className="text-sm">
-            "{searchQuery}" aramasıyla eşleşen etkinlik yok.
+            No events matched "{searchQuery}".
           </p>
         </div>
       )}

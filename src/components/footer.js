@@ -41,7 +41,7 @@ export default function Footer({ activeTab, onTabChange }) {
             className="absolute -top-12 bg-red-500/90 backdrop-blur-md text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xl border border-red-400/30 whitespace-nowrap"
           >
             <Wallet size={16} className="text-white" />
-            <span>Lütfen önce cüzdanınızı bağlayın!</span>
+            <span>Please connect your wallet first!</span>
             {/* Küçük bir ok işareti (Triangle) */}
             <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-red-500/90 rotate-45" />
           </motion.div>

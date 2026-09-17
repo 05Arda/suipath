@@ -84,10 +84,10 @@ export default function EventSwiper({ events }) {
                   <div className="mb-3">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[10px] text-text-muted">
-                        Doluluk
+                        Occupancy
                       </span>
                       <span className={`text-[10px] font-bold ${statusColor}`}>
-                        %{occupancy}
+                        {occupancy}%
                       </span>
                     </div>
                     <div className="w-full h-1.5 bg-ocean-dark rounded-full overflow-hidden">

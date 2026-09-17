@@ -10,9 +10,7 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ["@mysten/walrus", "@mysten/walrus-wasm"],
-  },
+  serverExternalPackages: ["@mysten/walrus", "@mysten/walrus-wasm"],
 };
 
 export default nextConfig;

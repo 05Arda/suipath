@@ -56,7 +56,7 @@ function MainContent() {
 
         // 2. Eğer kullanıcı YOKSA -> Oluştur (Otomatik Kayıt)
         if (!profile) {
-          console.log("Yeni kullanıcı tespit edildi, oluşturuluyor...");
+          console.log("New user detected, creating profile...");
           const result = await createUser(account.address);
 
           if (result.success) {
@@ -68,7 +68,7 @@ function MainContent() {
         // 3. Profili state'e at
         setUserProfile(profile);
       } catch (error) {
-        console.error("Profil işlemi hatası:", error);
+        console.error("Profile operation error:", error);
       }
     } else {
       setUserProfile(null);
@@ -83,7 +83,7 @@ function MainContent() {
       setEventsData(events);
       setNftsData(nfts);
     } catch (error) {
-      console.error("Genel veri hatası:", error);
+      console.error("General data error:", error);
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ function MainContent() {
 
   const renderContent = () => {
     if (loading)
-      return <div className="text-white text-center mt-20">Yükleniyor...</div>;
+      return <div className="text-white text-center mt-20">Loading...</div>;
 
     const userComponent = account ? (
       <div className="relative w-full h-full">
@@ -116,11 +116,11 @@ function MainContent() {
     ) : (
       <div className="flex flex-col items-center justify-center w-screen h-[80vh] text-white space-y-4">
         <p className="text-lg font-medium text-center">
-          Profilinizi görmek için lütfen cüzdanınızı bağlayın.
+          Please connect your wallet to view your profile.
         </p>
         <ConnectButton
           className="!bg-primary-cyan !text-white !rounded-full !font-bold hover:!bg-white hover:!text-primary-cyan transition-all"
-          connectText="Cüzdan Bağla"
+          connectText="Connect Wallet"
         />
       </div>
     );

@@ -26,7 +26,7 @@ function getKeypair() {
   const mnemonic = process.env.MNEMONIC;
   if (!mnemonic || mnemonic.trim() === "" || mnemonic === "mmonic") {
     throw new Error(
-      "MNEMONIC çevre değişkeni (Environment Variable) eksik veya geçersiz. Walrus'a yükleme yapabilmek için lütfen .env.local dosyasına geçerli bir 12/24 kelimelik MNEMONIC ekleyin."
+      "MNEMONIC environment variable is missing or invalid. Please add a valid 12/24 word MNEMONIC to your .env.local file to upload to Walrus."
     );
   }
   return Ed25519Keypair.deriveKeypair(mnemonic.trim());
@@ -43,7 +43,7 @@ export async function uploadImageToWalrus(formData) {
   const epochs = formData.get("epochs") || 5;
 
   if (!file) {
-    throw new Error("Dosya bulunamadı.");
+    throw new Error("File not found.");
   }
 
   console.log(`📤 Uploading ${file.name} to Walrus (Server Side SDK)...`);
